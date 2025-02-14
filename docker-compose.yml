@@ -1,0 +1,36 @@
+services:
+  builder:
+    image: gradle:8.11.1-jdk17-jammy
+    container_name: gradle_builder
+    working_dir: /app
+    volumes:
+      - .:/app   # Mount the current directory to `/app` in the container
+      - gradle-cache:/root/.gradle # Reuse Gradle cache for faster builds
+    command: gradle bootJar
+    networks:
+      - tgbot-ai-network
+
+  app:
+    image: openjdk:17-jdk-slim # Use a lightweight OpenJDK image for running the app
+    container_name: tgbot-ai
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+    working_dir: /app
+    volumes:
+      - .:/app   # Mount the current directory to `/app` in the container
+    env_file:
+      - .env
+    ports:
+      - "$SERVER_PORT:$SERVER_PORT"
+      - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
+    command: java -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME -Dhttp.proxyPort=$TGBOT_PROXY_PORT -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD -jar build/libs/tgbot-ai-0.0.1.jar
+    restart: always
+    networks:
+      - tgbot-ai-network
+
+volumes:
+  gradle-cache:
+
+networks:
+  tgbot-ai-network:

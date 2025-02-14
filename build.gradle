@@ -1,0 +1,81 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.3'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'cane.brothers.ai'
+version = '0.0.1'
+description = 'Telegram bot acting as an AI assistant'
+
+java {
+	sourceCompatibility = '17'
+}
+
+jar {
+	manifest {
+		attributes(
+				'Main-Class': 'cane.brothers.ai.bot.App'
+		)
+	}
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url 'https://repo.spring.io/milestone'
+		mavenContent {
+			releasesOnly()
+		}
+	}
+	maven {
+		url 'https://repo.spring.io/snapshot'
+		mavenContent {
+			snapshotsOnly()
+		}
+	}
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT'
+	}
+}
+
+dependencies {
+	// spring boot
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// spring ai
+	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+	// telegram bot libs
+	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:8.2.0'
+	implementation 'org.telegram:telegrambots-client:8.2.0'
+	implementation 'org.telegram:telegrambots-abilities:8.2.0'
+	// slf4j implementation
+	implementation 'ch.qos.logback:logback-classic:1.4.12'
+	// escape chars
+	implementation "org.apache.commons:commons-text:1.12.0"
+	// Lombok
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+	// test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	// testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// Lombok for testing
+	//testCompileOnly 'org.projectlombok:lombok:1.18.30'
+	//testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

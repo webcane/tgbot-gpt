@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <logger name="cane.brothers" level="debug" />
+
+    <!-- Define log levels for the root logger -->
+    <root level="info">
+        <!-- Console appender -->
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- Console appender configuration -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Pattern for log messages -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+</configuration>
