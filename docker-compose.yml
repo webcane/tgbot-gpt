@@ -1,7 +1,7 @@
 services:
   builder:
     image: gradle:8.11.1-jdk17-jammy
-    container_name: gradle_builder
+    container_name: gradle-gpt
     working_dir: /app
     volumes:
       - .:/app   # Mount the current directory to `/app` in the container
