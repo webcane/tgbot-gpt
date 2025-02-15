@@ -28,7 +28,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
     @Override
     public void execute(Message data) throws TelegramApiException {
         Long chatId = data.getChatId();
-        Integer messageId = data.getMessageId();
+        Integer messageId = data.isReply() ? data.getReplyToMessage().getMessageId() : data.getMessageId();
         logUserMessage(data);
 
         // quick reply

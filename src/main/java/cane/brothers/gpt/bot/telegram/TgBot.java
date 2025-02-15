@@ -116,10 +116,7 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
 
     boolean isUserChatMessage(Message userMessage) {
         var chat = userMessage.getChat();
-        if (chat != null && chat.isUserChat()) {
-            return true;
-        }
-        return false;
+        return chat != null && chat.isUserChat();
     }
 
     boolean isGroupChatMessageToBot(Message userMessage) {
