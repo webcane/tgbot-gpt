@@ -1,5 +1,5 @@
-# tgbot-ai
-This is a Telegram bot designed to serve as an AI assistant. 
+# tgbot-gpt
+This is a Telegram bot designed to serve as an GPT assistant. 
 It was created using Java 17, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with the [GPT-4o](https://platform.openai.com/docs/models#gpt-4o) large language model from [OpenAI](https://platform.openai.com/docs/overview).
 
 # Setup
@@ -7,7 +7,7 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
 2. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
 3. Clone the repo to the server
     ```bash
-    git clone https://github.com/webcane/tgbot-ai.git
+    git clone https://github.com/webcane/tgbot-gpt.git
     ```
 4. rename `.env.sample` to `.env` and specify required environmental variables there
     ```dotenv

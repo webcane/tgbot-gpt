@@ -8,11 +8,11 @@ services:
       - gradle-cache:/root/.gradle # Reuse Gradle cache for faster builds
     command: gradle bootJar
     networks:
-      - tgbot-ai-network
+      - tgbot-gpt-network
 
   app:
     image: openjdk:17-jdk-slim # Use a lightweight OpenJDK image for running the app
-    container_name: tgbot-ai
+    container_name: tgbot-gpt
     depends_on:
       builder:
         condition: service_completed_successfully
@@ -24,13 +24,13 @@ services:
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
-    command: java -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME -Dhttp.proxyPort=$TGBOT_PROXY_PORT -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD -jar build/libs/tgbot-ai-0.0.1.jar
+    command: java -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME -Dhttp.proxyPort=$TGBOT_PROXY_PORT -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD -jar build/libs/tgbot-gpt-0.0.1.jar
     restart: always
     networks:
-      - tgbot-ai-network
+      - tgbot-gpt-network
 
 volumes:
   gradle-cache:
 
 networks:
-  tgbot-ai-network:
+  tgbot-gpt-network:

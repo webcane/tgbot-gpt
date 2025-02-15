@@ -3,8 +3,8 @@
     <option name="envFilePaths">
       <option value="$PROJECT_DIR$/.env" />
     </option>
-    <option name="MAIN_CLASS_NAME" value="cane.brothers.ai.bot.App" />
-    <module name="tgbot-ai.main" />
+    <option name="MAIN_CLASS_NAME" value="cane.brothers.gpt.bot.App" />
+    <module name="tgbot-gpt.main" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cane.brothers.bot.*" />
