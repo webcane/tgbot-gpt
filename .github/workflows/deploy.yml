@@ -1,5 +1,10 @@
 name: Deploy to VM workflow
 
+env:
+  # Use the same ssh-agent socket value across all jobs
+  # Useful when a GH action is using SSH behind-the-scenes
+  SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
 on:
   push:
     branches:
@@ -12,13 +17,17 @@ jobs:
 
     steps:      
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.4
-      with:
-        ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-        
-    - name: Deploy to VM server
+    - name: Setup SSH with a passphrase
+      env:
+        SSH_PASSPHRASE: ${{secrets.SSH_PASSPHRASE}}
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
       run: |
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        echo "echo $SSH_PASSPHRASE" > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
+        echo "$SSH_PRIVATE_KEY" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
         ssh -o StrictHostKeyChecking=no $VM_USER@$VM_SERVER "cd /home/$VM_USER/$GITHUB_REPOSITORY.git && git pull"
+
+    - name: Print ssh-add identities
+      run: ssh-add -l
