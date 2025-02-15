@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: ping VM
-      run: ping -c 10 $VM_SERVER
+      run: ping -c 10 ${{vars.VM_SERVER}}
 
     - name: Setup SSH with a passphrase
       env:
@@ -30,7 +30,7 @@ jobs:
         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
         echo "echo $SSH_PASSPHRASE" > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
         echo "$SSH_PRIVATE_KEY" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - >/dev/null
-        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $VM_USER@$VM_SERVER "cd /home/$VM_USER/$GITHUB_REPOSITORY.git && git pull"
+        ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${{vars.VM_USER}}@${{vars.VM_SERVER}} "cd /home/${{vars.VM_USER}}/$GITHUB_REPOSITORY.git && git pull"
 
     - name: Print ssh-add identities
       run: ssh-add -l
