@@ -19,6 +19,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: ping VM
+      run: ping -c 10 $VM_SERVER
+
     - name: Setup SSH with a passphrase
       env:
         SSH_PASSPHRASE: ${{secrets.SSH_PASSPHRASE}}
