@@ -62,14 +62,15 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
             try {
                 // user chat message
                 if (isUserChatMessage(userMessage)) {
-                    var command = commandFactory.create(userMessage.getText());
+                    var userCommand = isVoiceMessage(userMessage) ? "/voice" : userMessage.getText();
+                    var command = commandFactory.create(userCommand);
                     command.execute(userMessage);
                 }
                 // group chat message - request to bot
                 else if (isGroupChatMessageToBot(userMessage)) {
                     var prompt = userMessage.getText().substring(botUsername.length() + 1);
 
-                    if(userMessage.isReply()) {
+                    if (userMessage.isReply()) {
                         prompt += ". " + userMessage.getReplyToMessage().getText();
                     }
                     var command = commandFactory.create(prompt);
@@ -112,6 +113,10 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
         else {
             log.warn("Unknown update. %s".formatted(update));
         }
+    }
+
+    private boolean isVoiceMessage(Message userMessage) {
+        return userMessage.hasVoice();
     }
 
     boolean isUserChatMessage(Message userMessage) {
