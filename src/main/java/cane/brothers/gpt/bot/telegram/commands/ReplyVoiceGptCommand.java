@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,7 +29,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component("/voice")
 @RequiredArgsConstructor
-public class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
+class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
     private final static int TG_ANSWER_LIMIT = 4000 - 20;
     private final ChatClient chatClient;
@@ -52,7 +53,10 @@ public class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         var replyMessage = telegramClient.execute(reply);
 
         // download voice
-        var voiceFileName = "src/main/resources/voice.oga";
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        log.info("tmp dir: %s".formatted(tmpDir));
+        var voiceFileName = tmpDir + "voice.oga";
+
         GetFile getFileMethod = new GetFile(data.getVoice().getFileId());
         var file = telegramClient.execute(getFileMethod);
         log.debug(file.toString());
@@ -114,7 +118,7 @@ public class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             FileUtils.copyInputStreamToFile(is, localFile);
             return true;
         } catch (IOException ex) {
-            log.error("unable to download file %s".formatted(file));
+            log.error("unable to download file %s".formatted(file), ex);
         }
         return false;
     }
