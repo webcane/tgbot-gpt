@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
 import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -15,7 +15,7 @@ public class OpenAiVoiceService {
 
     private final OpenAiAudioTranscriptionModel voiceModel;
 
-    public String transcribe(FileSystemResource fileResource) {
+    public String transcribe(Resource fileResource) {
         AudioTranscriptionPrompt transcriptionRequest = new AudioTranscriptionPrompt(fileResource);
         AudioTranscriptionResponse response = voiceModel.call(transcriptionRequest);
         log.debug(response.getResult().toString());
