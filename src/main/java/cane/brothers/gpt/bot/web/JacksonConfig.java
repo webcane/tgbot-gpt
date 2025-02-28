@@ -7,7 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @Configuration
 class JacksonConfig {
@@ -21,12 +20,7 @@ class JacksonConfig {
     }
 
     @Bean
-    public HttpMessageConverters customConverters(MappingJackson2HttpMessageConverter httpMessageConverter) {
+    public HttpMessageConverters customConverters(VirtualFileResourceHttpMessageConverter httpMessageConverter) {
         return new HttpMessageConverters(httpMessageConverter);
-    }
-
-    @Bean
-    MappingJackson2HttpMessageConverter httpMessageConverter(ObjectMapper objectMapper) {
-        return new MappingJackson2HttpMessageConverter(objectMapper);
     }
 }

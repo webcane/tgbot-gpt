@@ -1,21 +1,17 @@
 package cane.brothers.gpt.bot.web;
 
-import org.springframework.core.io.AbstractResource;
-import org.springframework.util.Assert;
+import org.springframework.core.io.InputStreamResource;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
-public class VirtualFileByteArrayResource extends AbstractResource {
-
-    private final InputStream is;
-    private final String description;
+/**
+ * Works with {@link VirtualFileResourceHttpMessageConverter} to forward input stream from
+ * file-uploads without reading everything into memory.
+ */
+public class VirtualFileByteArrayResource extends InputStreamResource {
 
     public VirtualFileByteArrayResource(InputStream is) {
-        Assert.notNull(is, "InputStream must not be null");
-        this.is = is;
-        this.description = "Virtual file loaded from input stream";
+        super(is);
     }
 
     @Override
@@ -24,12 +20,8 @@ public class VirtualFileByteArrayResource extends AbstractResource {
     }
 
     @Override
-    public String getDescription() {
-        return this.description;
+    public long contentLength() {
+        return -1; // we do not want to generally read the whole stream into memory ...
     }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return new BufferedInputStream(this.is);
-    }
 }
