@@ -19,12 +19,11 @@ public class OpenAiVoiceService {
 
     public String transcribe(Resource fileResource) {
         var transcriptionOptions = OpenAiAudioTranscriptionOptions.builder()
-                .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.TEXT)
-                .temperature(0f)
+                .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.JSON)
                 .build();
         AudioTranscriptionPrompt transcriptionRequest = new AudioTranscriptionPrompt(fileResource, transcriptionOptions);
         AudioTranscriptionResponse response = voiceModel.call(transcriptionRequest);
-        log.debug(response.getResult().toString());
+        log.debug("transcribe voice to text: %s".formatted(response.getResult().getOutput()));
         // todo handle errors
         return response.getResult().getOutput();
     }
