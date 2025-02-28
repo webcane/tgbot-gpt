@@ -19,6 +19,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app   # Mount the current directory to `/app` in the container
+      - /var/lib/tmp:/tmp
     env_file:
       - .env
     ports:

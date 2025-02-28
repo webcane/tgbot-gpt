@@ -17,7 +17,6 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -54,15 +53,16 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
         // download voice
         String tmpDir = System.getProperty("java.io.tmpdir");
-        log.info("tmp dir: %s".formatted(tmpDir));
-        var voiceFileName = tmpDir + "voice.oga";
+        log.debug("tmp dir: %s".formatted(tmpDir));
+
+        var voiceFileName = tmpDir + "/voice.oga";
+        log.debug("voice file name: %s".formatted(voiceFileName));
 
         GetFile getFileMethod = new GetFile(data.getVoice().getFileId());
         var file = telegramClient.execute(getFileMethod);
         log.debug(file.toString());
 
         if (downloadFile(file, voiceFileName)) {
-
             // voice to text
             var voicePrompt = voiceClient.transcribe(new FileSystemResource(voiceFileName));
             String answer = getGptAnswer(voicePrompt);
@@ -111,6 +111,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
     boolean downloadFile(File file, String outputFileName) {
         String fileUrl = file.getFileUrl(properties.token());
+        log.debug("remote voice file url: %s".formatted(fileUrl));
 
         try {
             java.io.File localFile = new java.io.File(outputFileName);
