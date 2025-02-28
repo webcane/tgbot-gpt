@@ -3,7 +3,6 @@ package cane.brothers.gpt.bot.openai;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
-import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
@@ -21,8 +20,8 @@ public class OpenAiVoiceService {
         var transcriptionOptions = OpenAiAudioTranscriptionOptions.builder()
                 .responseFormat(OpenAiAudioApi.TranscriptResponseFormat.JSON)
                 .build();
-        AudioTranscriptionPrompt transcriptionRequest = new AudioTranscriptionPrompt(fileResource, transcriptionOptions);
-        AudioTranscriptionResponse response = voiceModel.call(transcriptionRequest);
+        var transcriptionRequest = new AudioTranscriptionPrompt(fileResource, transcriptionOptions);
+        var response = voiceModel.call(transcriptionRequest);
         log.debug("transcribe voice to text: %s".formatted(response.getResult().getOutput()));
         // todo handle errors
         return response.getResult().getOutput();
