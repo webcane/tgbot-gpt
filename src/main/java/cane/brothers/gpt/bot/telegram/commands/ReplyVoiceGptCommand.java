@@ -3,11 +3,11 @@ package cane.brothers.gpt.bot.telegram.commands;
 import cane.brothers.gpt.bot.AppProperties;
 import cane.brothers.gpt.bot.openai.OpenAiVoiceService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
+import cane.brothers.gpt.bot.web.VirtualFileByteArrayResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -52,19 +52,14 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         var replyMessage = telegramClient.execute(reply);
 
         // download voice
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        log.debug("tmp dir: %s".formatted(tmpDir));
-
-        var voiceFileName = tmpDir + "/voice.oga";
-        log.debug("voice file name: %s".formatted(voiceFileName));
-
         GetFile getFileMethod = new GetFile(data.getVoice().getFileId());
         var file = telegramClient.execute(getFileMethod);
         log.debug(file.toString());
 
-        if (downloadFile(file, voiceFileName)) {
+        var voiceFileResource = downloadFileResource(file);
+        if (voiceFileResource != null) {
             // voice to text
-            var voicePrompt = voiceClient.transcribe(new FileSystemResource(voiceFileName));
+            var voicePrompt = voiceClient.transcribe(voiceFileResource);
             String answer = getGptAnswer(voicePrompt);
 
             // delete quick reply
@@ -109,19 +104,17 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         }
     }
 
-    boolean downloadFile(File file, String outputFileName) {
+    Resource downloadFileResource(File file) {
         String fileUrl = file.getFileUrl(properties.token());
         log.debug("remote voice file url: %s".formatted(fileUrl));
 
         try {
-            java.io.File localFile = new java.io.File(outputFileName);
             InputStream is = new URL(fileUrl).openStream();
-            FileUtils.copyInputStreamToFile(is, localFile);
-            return true;
+            return new VirtualFileByteArrayResource(is);
         } catch (IOException ex) {
             log.error("unable to download file %s".formatted(file), ex);
         }
-        return false;
+        return null;
     }
 
     String getGptAnswer(String userMessage) {
