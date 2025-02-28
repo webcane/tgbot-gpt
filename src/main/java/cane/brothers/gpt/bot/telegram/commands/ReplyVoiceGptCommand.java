@@ -3,10 +3,10 @@ package cane.brothers.gpt.bot.telegram.commands;
 import cane.brothers.gpt.bot.AppProperties;
 import cane.brothers.gpt.bot.openai.OpenAiVoiceService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
-import cane.brothers.gpt.bot.web.VirtualFileByteArrayResource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -110,7 +110,8 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
         try {
             InputStream is = new URL(fileUrl).openStream();
-            return new VirtualFileByteArrayResource(is);
+//            return new VirtualFileByteArrayResource(is);
+            return new InputStreamResource(is);
         } catch (IOException ex) {
             log.error("unable to download file %s".formatted(file), ex);
         }
