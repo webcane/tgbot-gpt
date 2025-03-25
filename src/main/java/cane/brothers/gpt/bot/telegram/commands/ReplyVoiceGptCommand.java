@@ -110,7 +110,6 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
         try {
             InputStream is = new URL(fileUrl).openStream();
-//            return new VirtualFileByteArrayResource(is);
             return new InputStreamResource(is);
         } catch (IOException ex) {
             log.error("unable to download file %s".formatted(file), ex);
