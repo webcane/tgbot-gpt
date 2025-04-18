@@ -6,7 +6,7 @@ import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -18,7 +18,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -109,8 +108,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         log.debug("remote voice file url: %s".formatted(fileUrl));
 
         try {
-            InputStream is = new URL(fileUrl).openStream();
-            return new InputStreamResource(is);
+            return new FileUrlResource(new URL(fileUrl));
         } catch (IOException ex) {
             log.error("unable to download file %s".formatted(file), ex);
         }
