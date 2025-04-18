@@ -7,5 +7,7 @@ public interface ChatCommand<T extends BotApiObject> {
 
     // TODO list all commands
 
+    default void setContext(CommandContext context) {}
+
     void execute(T data) throws TelegramApiException;
 }

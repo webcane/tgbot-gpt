@@ -11,8 +11,8 @@ interface CommandFactory<T extends BotApiObject> {
 
     default ChatCommand<T> create(@NotNull Class<? extends ChatCommand<T>> commandClass) {
         if (commandClass.isAnnotationPresent(Component.class)) {
-            Component componentAnnotation = commandClass.getClass().getAnnotation(Component.class);
-            create(componentAnnotation.value());
+            Component componentAnnotation = commandClass.getAnnotation(Component.class);
+            return create(componentAnnotation == null ? "/error" : componentAnnotation.value());
         }
         throw new IllegalArgumentException("The command name is not defined for class %s"
                 .formatted(commandClass.getName()));

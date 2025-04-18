@@ -3,6 +3,7 @@ package cane.brothers.gpt.bot.telegram;
 import cane.brothers.gpt.bot.AppProperties;
 import cane.brothers.gpt.bot.telegram.commands.ChatCallbackCommandFactory;
 import cane.brothers.gpt.bot.telegram.commands.ChatCommandFactory;
+import cane.brothers.gpt.bot.telegram.commands.ErrorCommandContext;
 import cane.brothers.gpt.bot.telegram.commands.ReplyErrorCommand;
 import cane.brothers.gpt.bot.telegram.info.TgBotInfo;
 import cane.brothers.gpt.bot.telegram.info.TgBotInfoFetcher;
@@ -80,7 +81,10 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
                 log.error("Can't send message to telegram", tex);
                 try {
                     var command = commandFactory.create(ReplyErrorCommand.class);
-                    command.execute(userMessage);
+                    if (command != null) {
+                        command.setContext(new ErrorCommandContext(tex.getMessage()));
+                        command.execute(userMessage);
+                    }
                 } catch (TelegramApiException ex) {
                     log.error("Can't send fallback message to telegram", ex);
                 }
