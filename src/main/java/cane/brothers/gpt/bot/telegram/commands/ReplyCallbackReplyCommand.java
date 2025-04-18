@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import static cane.brothers.gpt.bot.telegram.commands.ReplyCallbackReplyCommand.NAME;
 
@@ -16,6 +17,8 @@ class ReplyCallbackReplyCommand implements ChatCommand<CallbackQuery> {
     public static final String NAME = "/callback_reply";
 
     private final ChatSettings botSettings;
+    private final TelegramClient telegramClient;
+    private final ChatCallbackCommandFactory callbackFactory;
 
     @Override
     public void execute(CallbackQuery data) throws TelegramApiException {
@@ -26,5 +29,9 @@ class ReplyCallbackReplyCommand implements ChatCommand<CallbackQuery> {
 
 //        // return related command message
 //        reply.set(command.getMessage(useCommand));
+
+        // hide callback menu
+        ReplyCallbackHideSettingsCommand cmd = new ReplyCallbackHideSettingsCommand(callbackFactory, telegramClient);
+        cmd.execute(data);
     }
 }

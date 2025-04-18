@@ -14,12 +14,12 @@ class TgBotInMemorySettings implements ChatSettings {
 
     @Override
     public Boolean getUseMarkup(Long chatId) {
-        return getChatSettings(chatId, BooleanSetting.MARKUP);
+        return getChatSettings(chatId, BooleanSetting.CALLBACK_MARKUP);
     }
 
     @Override
     public Boolean getUseReply(Long chatId) {
-        return getChatSettings(chatId, BooleanSetting.REPLY);
+        return getChatSettings(chatId, BooleanSetting.CALLBACK_REPLY);
     }
 
     @Override

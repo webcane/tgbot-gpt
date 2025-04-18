@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 enum BooleanSetting implements CommandSetting {
-    REPLY(Boolean.TRUE),
-    MARKUP(Boolean.TRUE);
+    CALLBACK_REPLY(Boolean.TRUE),
+    CALLBACK_MARKUP(Boolean.TRUE);
 
     private final Boolean defaultValue;
 
