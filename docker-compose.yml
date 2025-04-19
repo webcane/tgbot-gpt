@@ -19,6 +19,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app   # Mount the current directory to `/app` in the container
+      - ~/voice:/app/src/main/resources/voice
       - /var/lib/tmp:/tmp
     env_file:
       - .env
@@ -32,6 +33,7 @@ services:
 
 volumes:
   gradle-cache:
+  voice:
 
 networks:
   tgbot-gpt-network:

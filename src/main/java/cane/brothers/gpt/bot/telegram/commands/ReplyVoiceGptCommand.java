@@ -6,7 +6,7 @@ import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -17,8 +17,14 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,12 +111,32 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
     Resource downloadFileResource(File file) {
         String fileUrl = file.getFileUrl(properties.token());
-        log.debug("remote voice file url: %s".formatted(fileUrl));
+        log.debug("remote voice file url: {}", fileUrl);
+
+//        String downloadDir = properties.voicePath();
+        Path downloadDir = Paths.get("src/main/resources");
 
         try {
-            return new FileUrlResource(new URL(fileUrl));
+            // Создание полного пути для сохранения файла
+            var filePath = downloadDir.resolve(file.getFilePath());
+            log.debug("save voice file to: {}", filePath);
+
+            // Убедитесь, что файл существует
+            if (!Files.exists(filePath)) {
+                Files.createFile(filePath);
+            }
+
+            // сохраняем файл
+            try (InputStream inputStream = new URL(fileUrl).openStream();
+                 FileOutputStream outputStream = new FileOutputStream(filePath.toFile())) {
+                outputStream.getChannel().transferFrom(Channels.newChannel(inputStream), 0, Long.MAX_VALUE);
+            }
+
+            var fp = filePath.toString();
+            log.debug("relative path: {}", fp);
+            return new FileSystemResource(filePath);
         } catch (IOException ex) {
-            log.error("unable to download file %s".formatted(file), ex);
+            log.error("unable to download file {}", file, ex);
         }
         return null;
     }
