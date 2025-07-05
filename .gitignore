@@ -7,12 +7,6 @@ gradle-app.setting
 .gradletasknamecache
 # Ignore Gradle project-specific cache directory
 .gradle
-# Ignore Gradle wrapper
-/gradle
-gradlew
-radlew.bat
-# Ignore Gradle build output directory
-build
 
 ### IntelliJ IDEA ###
 .idea
@@ -28,5 +22,5 @@ out/
 .vscode/
 
 ### env variables ###
-/.env
+.env
 
