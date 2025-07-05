@@ -9,7 +9,8 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties(prefix = "tgbot")
 public record AppProperties(
         @NotNull(message = "The property 'tgbot.token' is required")
-        String token, HttpProxy proxy) {
+        String token, HttpProxy proxy,
+        String voicePath) {
 
     public record HttpProxy(
             @NotNull(message = "The property 'tgbot.proxy.hostname' is required")
