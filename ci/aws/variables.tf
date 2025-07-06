@@ -7,5 +7,5 @@ variable "app_name" {
 variable "key_name" {
   description = "SSH key name"
   type        = string
-  default     = "tgbot-gpt-aws-keypair" # "tgbot-gpt-ssh-keys"
+  default     = "tgbot-gpt-aws-keypair"
 }
