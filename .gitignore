@@ -22,5 +22,5 @@ out/
 .vscode/
 
 ### env variables ###
-/.env
+.env
 
