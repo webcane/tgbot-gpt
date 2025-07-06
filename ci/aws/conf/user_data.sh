@@ -14,4 +14,4 @@ apt list --installed
 # install git
 
 # install java
-sudo apt install openjdk-21-jre-headless
+# sudo apt install openjdk-21-jre-headless
