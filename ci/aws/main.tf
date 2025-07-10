@@ -42,6 +42,13 @@ resource "aws_eip_association" "this" {
   allocation_id = aws_eip.this.id
 }
 
+locals {
+  cloud_init_data = templatefile("${path.module}/user_data.sh.tpl", {
+    app_name = var.app_name
+    email    = var.alert_email
+  })
+}
+
 module "tgbot-ec2" {
   source                      = "terraform-aws-modules/ec2-instance/aws"
   version                     = ">= 5.8.0"
@@ -52,12 +59,7 @@ module "tgbot-ec2" {
   vpc_security_group_ids      = [module.tgbot-sg.security_group_id]
   associate_public_ip_address = false
   subnet_id                   = data.aws_subnets.this.ids[0]
-  user_data                   = file("conf/user_data.sh")
-  root_block_device           = {
-    size                  = 8
-    type                  = "gp3"
-    delete_on_termination = false
-  }
+  user_data                   = local.cloud_init_data
   tags = {
     Terraform = "true"
     Project   = var.app_name

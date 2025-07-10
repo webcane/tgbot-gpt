@@ -37,6 +37,8 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
 TBD
 
 # Notable features
+The EC2 instance is configured with only a root volume. Each time Terraform provisions the instance, 
+all data is lost and the environment is reinitialized using the user_data cloud-init script.
 
 # Message limits
 
