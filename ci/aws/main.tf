@@ -43,9 +43,15 @@ resource "aws_eip_association" "this" {
 }
 
 locals {
-  cloud_init_data = templatefile("${path.module}/user_data.sh.tpl", {
+  hook_data = templatefile("${path.module}/post-receive.tpl", {
     app_name = var.app_name
+  })
+  cloud_init_data = templatefile("${path.module}/user_data.sh.tpl", {
+    arch     = "amd64"
+    app_name = var.app_name
+    codename = "noble"
     email    = var.alert_email
+    hook     = local.hook_data
   })
 }
 
@@ -60,7 +66,7 @@ module "tgbot-ec2" {
   associate_public_ip_address = false
   subnet_id                   = data.aws_subnets.this.ids[0]
   user_data                   = local.cloud_init_data
-  tags = {
+  tags                        = {
     Terraform = "true"
     Project   = var.app_name
   }
