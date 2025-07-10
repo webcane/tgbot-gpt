@@ -9,3 +9,8 @@ variable "key_name" {
   type        = string
   default     = "tgbot-gpt-aws-keypair"
 }
+
+variable "alert_email" {
+  description = "budget alert email"
+  type        = string
+}
