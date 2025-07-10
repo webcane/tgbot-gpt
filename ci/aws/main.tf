@@ -27,9 +27,13 @@ data "aws_subnets" "this" {
   }
 }
 
-# elastic IP
+# define elastic ip for use in vpc
 resource "aws_eip" "this" {
-  vpc = true
+  domain = "vpc"
+  tags   = {
+    Terraform = "true"
+    Project   = var.app_name
+  }
 }
 
 # set elastic ip to ec2 instance
