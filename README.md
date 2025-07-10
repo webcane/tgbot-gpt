@@ -11,9 +11,11 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
     ```
 4. rename `.env.sample` to `.env` and specify required environmental variables there
     ```dotenv
-    TGBOT_TOKEN=
+    PROJECT=
     SERVER_PORT=
     SPRING_AI_OPENAI_API_KEY=
+    TGBOT_TOKEN=
+    TGBOT_VOICE_PATH=
     ```
 5. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
