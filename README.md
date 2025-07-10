@@ -14,6 +14,10 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
     PROJECT=
     SERVER_PORT=
     SPRING_AI_OPENAI_API_KEY=
+    TGBOT_PROXY_HOSTNAME=
+    TGBOT_PROXY_PORT=42567
+    TGBOT_PROXY_USERNAME=
+    TGBOT_PROXY_PASSWORD=
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
     ```

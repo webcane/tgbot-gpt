@@ -27,17 +27,29 @@ data "aws_subnets" "this" {
   }
 }
 
+# elastic IP
+resource "aws_eip" "this" {
+  vpc = true
+}
+
+# set elastic ip to ec2 instance
+resource "aws_eip_association" "this" {
+  instance_id   = module.tgbot-ec2.id
+  allocation_id = aws_eip.this.id
+}
+
 module "tgbot-ec2" {
-  source                 = "terraform-aws-modules/ec2-instance/aws"
-  version                = ">= 5.8.0"
-  name                   = "${var.app_name}-ec2"
-  ami                    = "ami-02003f9f0fde924ea" # Ubuntu 24.04 64bit x86
-  instance_type          = "t2.micro"
-  key_name               = var.key_name
-  vpc_security_group_ids = [module.tgbot-sg.security_group_id]
-  subnet_id              = data.aws_subnets.this.ids[0]
-  user_data              = file("conf/user_data.sh")
-  tags                   = {
+  source                      = "terraform-aws-modules/ec2-instance/aws"
+  version                     = ">= 5.8.0"
+  name                        = "${var.app_name}-ec2"
+  ami                         = "ami-02003f9f0fde924ea" # Ubuntu 24.04 64bit x86
+  instance_type               = "t2.micro"
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [module.tgbot-sg.security_group_id]
+  associate_public_ip_address = false
+  subnet_id                   = data.aws_subnets.this.ids[0]
+  user_data                   = file("conf/user_data.sh")
+  tags                        = {
     Terraform = "true"
     Project   = var.app_name
   }
