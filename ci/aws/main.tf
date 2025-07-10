@@ -53,7 +53,12 @@ module "tgbot-ec2" {
   associate_public_ip_address = false
   subnet_id                   = data.aws_subnets.this.ids[0]
   user_data                   = file("conf/user_data.sh")
-  tags                        = {
+  root_block_device           = {
+    size                  = 8
+    type                  = "gp3"
+    delete_on_termination = false
+  }
+  tags = {
     Terraform = "true"
     Project   = var.app_name
   }
