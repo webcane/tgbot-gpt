@@ -15,6 +15,7 @@ public class ChatCommandFactory implements CommandFactory<Message> {
     private final ApplicationContext context;
 
     @Override
+    @SuppressWarnings("unchecked")
     public ChatCommand<Message> create(String message) {
         try {
             if (message.startsWith("/")) { // registered command
