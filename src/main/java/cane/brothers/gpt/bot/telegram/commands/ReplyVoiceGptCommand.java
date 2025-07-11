@@ -127,9 +127,10 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             }
 
             // сохраняем файл
-            try (InputStream inputStream = new URL(fileUrl).openStream();
-                 FileOutputStream outputStream = new FileOutputStream(filePath.toFile())) {
-                outputStream.getChannel().transferFrom(Channels.newChannel(inputStream), 0, Long.MAX_VALUE);
+            try (InputStream inputStream = new URL(fileUrl).openStream()) {
+                try (FileOutputStream outputStream = new FileOutputStream(filePath.toFile())) {
+                    outputStream.getChannel().transferFrom(Channels.newChannel(inputStream), 0, Long.MAX_VALUE);
+                }
             }
 
             var fp = filePath.toString();
