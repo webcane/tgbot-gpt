@@ -9,6 +9,7 @@ import cane.brothers.gpt.bot.telegram.info.TgBotInfo;
 import cane.brothers.gpt.bot.telegram.info.TgBotInfoFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.BotSession;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
@@ -77,18 +78,15 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
                     var command = commandFactory.create(prompt);
                     command.execute(userMessage);
                 }
-            } catch (TelegramApiException tex) {
+            } catch (NonTransientAiException aiEx) {
+                log.error("Can't handle AI message", aiEx);
+                sendErrorReply(aiEx, userMessage);
+            }
+            catch (TelegramApiException tex) {
                 log.error("Can't send message to telegram", tex);
-                try {
-                    var command = commandFactory.create(ReplyErrorCommand.class);
-                    if (command != null) {
-                        command.setContext(new ErrorCommandContext(tex.getMessage()));
-                        command.execute(userMessage);
-                    }
-                } catch (TelegramApiException ex) {
-                    log.error("Can't send fallback message to telegram", ex);
-                }
-            } catch (Exception ex) {
+                sendErrorReply(tex, userMessage);
+            }
+            catch (Exception ex) {
                 log.error("Exception occurred", ex);
             }
         }
@@ -116,6 +114,18 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
         // unknown update
         else {
             log.warn("Unknown update. %s".formatted(update));
+        }
+    }
+
+    private void sendErrorReply(Exception tex, Message userMessage) {
+        try {
+            var command = commandFactory.create(ReplyErrorCommand.class);
+            if (command != null) {
+                command.setContext(new ErrorCommandContext(tex.getMessage()));
+                command.execute(userMessage);
+            }
+        } catch (TelegramApiException ex) {
+            log.error("Can't send fallback message to telegram", ex);
         }
     }
 
