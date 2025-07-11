@@ -10,7 +10,6 @@ version = '0.0.1'
 description = 'Telegram bot acting as an AI assistant'
 
 java {
-	sourceCompatibility = '21'
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
