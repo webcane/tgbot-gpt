@@ -1,6 +1,6 @@
 services:
   builder:
-    image: gradle:8.11.1-jdk17-jammy
+    image: gradle:8.14.2-jdk21-ubi-minimal
     container_name: gradle-gpt
     working_dir: /app
     volumes:
@@ -11,7 +11,7 @@ services:
       - tgbot-gpt-network
 
   app:
-    image: openjdk:17-jdk-slim # Use a lightweight OpenJDK image for running the app
+    image: eclipse-temurin:21-jdk-jammy # Use a lightweight OpenJDK image for running the app
     container_name: tgbot-gpt
     depends_on:
       builder:
