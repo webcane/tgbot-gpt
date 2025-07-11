@@ -16,6 +16,7 @@ chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www
 
 # create commit hook
 touch /home/ubuntu/${app_name}.git/hooks/post-receive
+sudo chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.git/hooks/post-receive
 chmod +x /home/ubuntu/${app_name}.git/hooks/post-receive
 echo ${hook_data} > /home/ubuntu/${app_name}.git/hooks/post-receive
 
@@ -40,4 +41,6 @@ docker compose version
 sudo usermod -aG docker ubuntu
 
 # add .env data
+touch /home/ubuntu/${app_name}.www/.env
+sudo chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www/.env
 echo ${env_data} > /home/ubuntu/${app_name}.www/.env
