@@ -60,8 +60,8 @@ dependencies {
 	// spring ai
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 	// telegram bot libs
-	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:8.3.0'
-	implementation 'org.telegram:telegrambots-client:8.3.0'
+	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.0.0'
+	implementation 'org.telegram:telegrambots-client:9.0.0'
 //	implementation 'org.telegram:telegrambots-abilities:8.2.0'
 	// slf4j implementation
 	implementation 'ch.qos.logback:logback-classic:1.5.18'
