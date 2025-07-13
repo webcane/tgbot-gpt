@@ -62,6 +62,7 @@ dependencies {
 	// telegram bot libs
 	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.0.0'
 	implementation 'org.telegram:telegrambots-client:9.0.0'
+	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.0.0'
 //	implementation 'org.telegram:telegrambots-abilities:8.2.0'
 	// slf4j implementation
 	implementation 'ch.qos.logback:logback-classic:1.5.18'

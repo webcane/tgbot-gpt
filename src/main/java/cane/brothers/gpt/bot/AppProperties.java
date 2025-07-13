@@ -18,6 +18,7 @@ public record AppProperties(
             @NotNull(message = "The property 'tgbot.proxy.port' is required")
             Integer port,
             String username,
-            String password) {
+            String password,
+            String method) {
     }
 }
