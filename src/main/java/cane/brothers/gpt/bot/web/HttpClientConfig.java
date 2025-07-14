@@ -77,7 +77,7 @@ class HttpClientConfig {
     @Bean
     Supplier<ProxyConfiguration.Proxy> proxySupplier(AppProperties properties) {
         // Proxy configuration
-        return properties.proxy() == null ?
+        return properties.proxy().hostname() == null ?
                 () -> null :
                 () -> {
                     if ("http".equals(properties.proxy().method())) {
@@ -99,7 +99,7 @@ class HttpClientConfig {
     @Bean
     Supplier<Authentication> authenticatorSupplier(AppProperties properties) {
         // Proxy credentials
-        return properties.proxy() == null ?
+        return properties.proxy().hostname() == null ?
                 () -> null :
                 () -> {
                     if ("http".equals(properties.proxy().method())) {
