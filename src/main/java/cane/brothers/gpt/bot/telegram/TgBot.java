@@ -6,7 +6,7 @@ import cane.brothers.gpt.bot.telegram.commands.ChatCommandFactory;
 import cane.brothers.gpt.bot.telegram.commands.ErrorCommandContext;
 import cane.brothers.gpt.bot.telegram.commands.ReplyErrorCommand;
 import cane.brothers.gpt.bot.telegram.info.TgBotInfo;
-import cane.brothers.gpt.bot.telegram.info.TgBotInfoClient;
+import cane.brothers.gpt.bot.telegram.info.TgBotInfoFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.retry.NonTransientAiException;
@@ -29,7 +29,7 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
     private final AppProperties properties;
     private final ChatCommandFactory commandFactory;
     private final ChatCallbackCommandFactory callbackFactory;
-    private final TgBotInfoClient botInfoClient;
+    private final TgBotInfoFeignClient botInfoClient;
     private String botUsername;
 
     @Override
