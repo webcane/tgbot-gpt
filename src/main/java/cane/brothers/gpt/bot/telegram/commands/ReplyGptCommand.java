@@ -1,9 +1,9 @@
 package cane.brothers.gpt.bot.telegram.commands;
 
+import cane.brothers.gpt.bot.ai.ChatClientService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 class ReplyGptCommand implements ChatCommand<Message>, Utils {
 
     private final static int TG_ANSWER_LIMIT = 4000 - 20;
-    private final ChatClient chatClient;
+    private final ChatClientService chatClient;
     private final TelegramClient telegramClient;
     private final ChatSettings botSettings;
 
@@ -82,15 +82,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
     }
 
     String getGptAnswer(String userMessage) {
-        try {
-            return chatClient.prompt()
-                    .user(userMessage)
-                    .call()
-                    .content();
-        } catch (Exception ex) {
-            log.error("open-ai error", ex);
-            return "An error occurred while processing the request to the open-ai service.";
-        }
+        return chatClient.call(userMessage);
     }
 
     private void logUserMessage(Message data) {

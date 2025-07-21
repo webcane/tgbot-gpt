@@ -1,11 +1,11 @@
 package cane.brothers.gpt.bot.telegram.commands;
 
 import cane.brothers.gpt.bot.AppProperties;
-import cane.brothers.gpt.bot.openai.OpenAiVoiceService;
+import cane.brothers.gpt.bot.ai.ChatClientService;
+import cane.brothers.gpt.bot.ai.ChatVoiceClientService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
     private final static int TG_ANSWER_LIMIT = 4000 - 20;
-    private final ChatClient chatClient;
-    private final OpenAiVoiceService voiceClient;
+    private final ChatClientService chatClient;
+    private final ChatVoiceClientService voiceClient;
     private final TelegramClient telegramClient;
     private final ChatSettings botSettings;
     private final AppProperties properties;
@@ -143,15 +143,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
     }
 
     String getGptAnswer(String userMessage) {
-        try {
-            return chatClient.prompt()
-                    .user(userMessage)
-                    .call()
-                    .content();
-        } catch (Exception ex) {
-            log.error("open-ai error", ex);
-            return "An error occurred while processing the request to the open-ai service.";
-        }
+        return chatClient.call(userMessage);
     }
 
     private void logUserMessage(Message data) {
