@@ -9,22 +9,22 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
     ```bash
     git clone https://github.com/webcane/tgbot-gpt.git
     ```
-4. rename `.env.sample` to `.env` and specify required environmental variables there
+4. specify required environmental variables in `.env`
     ```dotenv
     PROJECT=
     SERVER_PORT=
-    SPRING_AI_OPENAI_API_KEY=
-    TGBOT_PROXY_HOSTNAME=
-    TGBOT_PROXY_PORT=42567
-    TGBOT_PROXY_USERNAME=
-    TGBOT_PROXY_PASSWORD=
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
+    # Open AI
+    OPENAI_API_KEY=
+    # Gemini
+    GOOGLE_CLOUD_PROJECT_ID=
+    GOOGLE_CLOUD_REGION=europe-west1
     ```
 5. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
     TGBOT_PROXY_HOSTNAME=
-    TGBOT_PROXY_PORT=
+    TGBOT_PROXY_PORT=42567
     TGBOT_PROXY_USERNAME=
     TGBOT_PROXY_PASSWORD=
     ```
