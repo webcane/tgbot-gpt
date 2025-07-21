@@ -1,4 +1,4 @@
-package cane.brothers.gpt.bot.openai;
+package cane.brothers.gpt.bot.ai.openai;
 
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
@@ -19,6 +19,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,36 +78,19 @@ class OpenAiConfig {
         return chatModel;
     }
 
-
-    @Bean
-    ChatClientBuilderConfigurer chatClientBuilderConfigurer() {
-        return new ChatClientBuilderConfigurer();
-    }
-
-    @Bean("openAiChatClientBuilder")
     @Scope("prototype")
-    ChatClient.Builder chatClientBuilder(ChatClientBuilderConfigurer chatClientBuilderConfigurer,
-                                         OpenAiChatModel openAiChatModel,
+    @Bean("openAiChatClientBuilder")
+    ChatClient.Builder chatClientBuilder(OpenAiChatModel openAiChatModel,
                                          ObjectProvider<ObservationRegistry> observationRegistry,
                                          ObjectProvider<ChatClientObservationConvention> observationConvention) {
 
-        ChatClient.Builder builder = ChatClient.builder(openAiChatModel,
-                observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP),
+        return ChatClient.builder(openAiChatModel, observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP),
                 observationConvention.getIfUnique(() -> null));
-        return chatClientBuilderConfigurer.configure(builder);
-    }
-
-
-    @Bean
-    SimpleLoggerAdvisor loggerAdvisor() {
-        //final Function<AdvisedRequest, String> request_to_string = request -> request.userText();
-        //final Function<ChatResponse, String> response_to_string = response -> response.getResult().getOutput().getContent();
-        //return new SimpleLoggerAdvisor(request_to_string, response_to_string, 0);
-        return new SimpleLoggerAdvisor();
     }
 
     @Bean("openAiChatClient")
-    ChatClient chatClient(ChatClient.Builder builder, SimpleLoggerAdvisor loggerAdvisor) {
+    ChatClient chatClient(@Qualifier("openAiChatClientBuilder") ChatClient.Builder builder,
+                          SimpleLoggerAdvisor loggerAdvisor) {
         return builder
                 .defaultAdvisors(loggerAdvisor)
                 .build();

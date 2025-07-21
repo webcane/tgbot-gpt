@@ -14,11 +14,15 @@ public class ChatClientService {
     @Qualifier("openAiChatClient")
     private final ChatClient openAiChatClient;
 
+    @Qualifier("geminiChatClient")
+    private final ChatClient geminiChatClient;
+
     // TODO gemini chat client
 
     public String call(String userMessage) {
         try {
-            return openAiChatClient.prompt()
+//            return openAiChatClient.prompt()
+            return geminiChatClient.prompt()
                     .user(userMessage)
                     .call()
                     .content();
