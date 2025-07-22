@@ -5,11 +5,19 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
 # Setup
 1. Get your AI API key from [OpenAI API](https://openai.com/api)
 2. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
-3. Clone the repo to the server
+3. Create Google Cloud Platform project
+4. Define API key to call Generative Language API only
+5. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install#deb) to use Google Gimini model
+6. Authenticate by running following commands
+   ```bash
+   gcloud config set project <PROJECT_ID>
+   gcloud auth application-default login <ACCOUNT>
+   ```
+7. Clone the repo to the server
     ```bash
     git clone https://github.com/webcane/tgbot-gpt.git
     ```
-4. specify required environmental variables in `.env`
+8. specify required environmental variables in `.env`
     ```dotenv
     PROJECT=
     SERVER_PORT=
@@ -21,14 +29,14 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
     GOOGLE_CLOUD_PROJECT_ID=
     GOOGLE_CLOUD_REGION=europe-west1
     ```
-5. To run the telegram bot over proxy define following env vars additionally:
+9. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
     TGBOT_PROXY_HOSTNAME=
     TGBOT_PROXY_PORT=42567
     TGBOT_PROXY_USERNAME=
     TGBOT_PROXY_PASSWORD=
     ```
-6. start the bot
+10. start the bot
     ```bash
     docker compose up --detach
     ```
