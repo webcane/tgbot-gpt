@@ -10,7 +10,6 @@ It was created using Java 17, utilizing the [Spring AI](https://spring.io/projec
 5. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install#deb) to use Google Gimini model
 6. Authenticate by running following commands
    ```bash
-   gcloud config set project <PROJECT_ID>
    gcloud auth application-default login <ACCOUNT>
    ```
 7. Clone the repo to the server

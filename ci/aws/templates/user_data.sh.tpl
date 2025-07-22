@@ -40,6 +40,23 @@ docker compose version
 # add ubuntu user into docker group
 sudo usermod -aG docker ubuntu
 
+# install gcloud dependencies
+sudo apt install apt-transport-https ca-certificates gnupg curl -y
+
+# add the google cloud sdk to apt sources
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
+# import google cloud public key
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+
+# install google cloud sdk
+sudo apt update
+sudo apt install google-cloud-sdk -y
+
+# init google cloud sdk
+gcloud config set project ${google_cloud_project_id}
+gcloud version
+
 # add .env data
 touch /home/ubuntu/${app_name}.www/.env
 sudo chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www/.env

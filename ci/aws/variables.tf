@@ -15,11 +15,7 @@ variable "alert_email" {
   type        = string
 }
 
-
 variable "server_port" {
-}
-
-variable "openai_api_key" {
 }
 
 variable "tgbot_token" {
@@ -39,4 +35,13 @@ variable "tgbot_proxy_username" {
 }
 
 variable "tgbot_proxy_password" {
+}
+
+variable "openai_api_key" {
+}
+
+variable "google_cloud_project_id" {
+}
+
+variable "google_cloud_region" {
 }
