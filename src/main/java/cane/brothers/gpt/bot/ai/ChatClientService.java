@@ -1,5 +1,7 @@
 package cane.brothers.gpt.bot.ai;
 
+import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
+import cane.brothers.gpt.bot.telegram.settings.GptModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -17,20 +19,25 @@ public class ChatClientService {
     @Qualifier("geminiChatClient")
     private final ChatClient geminiChatClient;
 
-    // TODO gemini chat client
+    private final ChatSettingsQuery botSettings;
 
-    public String call(String userMessage) {
+    public String call(Long chatId, String userMessage) {
+        GptModel model = botSettings.getGptModel(chatId);
         try {
-//            return openAiChatClient.prompt()
-            return geminiChatClient.prompt()
+
+            ChatClient client;
+            switch (model) {
+                case GEMINI -> client = geminiChatClient;
+                case OPENAI -> client = openAiChatClient;
+                default -> throw new IllegalArgumentException("Unknown model: " + model);
+            }
+            return client.prompt()
                     .user(userMessage)
                     .call()
                     .content();
         } catch (Exception ex) {
-            log.error("open-ai error", ex);
-            return "An error occurred while processing the request to the <b>open-ai</b> service.";
+            log.error("AI error", ex);
+            return "An error occurred while processing the request to %s.".formatted(model);
         }
     }
-
-
 }

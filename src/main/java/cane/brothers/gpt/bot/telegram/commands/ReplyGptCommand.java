@@ -2,6 +2,7 @@ package cane.brothers.gpt.bot.telegram.commands;
 
 import cane.brothers.gpt.bot.ai.ChatClientService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
+import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
     private final static int TG_ANSWER_LIMIT = 4000 - 20;
     private final ChatClientService chatClient;
     private final TelegramClient telegramClient;
-    private final ChatSettings botSettings;
+    private final ChatSettingsQuery botSettings;
 
     @Override
     public void execute(Message data) throws TelegramApiException {
@@ -38,7 +39,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
                 .build();
         var replyMessage = telegramClient.execute(reply);
 
-        String answer = getGptAnswer(data.getText());
+        String answer = getGptAnswer(chatId, data.getText());
 
         // delete quick reply
         var delCommand = new DeleteMessageCommand(telegramClient);
@@ -81,8 +82,8 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
         }
     }
 
-    String getGptAnswer(String userMessage) {
-        return chatClient.call(userMessage);
+    String getGptAnswer(Long chatId, String userMessage) {
+        return chatClient.call(chatId, userMessage);
     }
 
     private void logUserMessage(Message data) {

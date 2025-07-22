@@ -1,6 +1,6 @@
 package cane.brothers.gpt.bot.telegram.commands;
 
-import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
+import cane.brothers.gpt.bot.telegram.settings.ChatSettingsCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ class ReplyCallbackMarkupCommand implements ChatCommand<CallbackQuery> {
 
     public static final String NAME = "/callback_markup";
 
-    private final ChatSettings botSettings;
+    private final ChatSettingsCommand botSettings;
     private final TelegramClient telegramClient;
     private final ChatCallbackCommandFactory callbackFactory;
 

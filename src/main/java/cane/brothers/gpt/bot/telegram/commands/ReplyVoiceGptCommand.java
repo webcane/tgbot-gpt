@@ -65,7 +65,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         if (voiceFileResource != null) {
             // voice to text
             var voicePrompt = voiceClient.transcribe(voiceFileResource);
-            String answer = getGptAnswer(voicePrompt);
+            String answer = getGptAnswer(chatId, voicePrompt);
 
             // delete quick reply
             var delCommand = new DeleteMessageCommand(telegramClient);
@@ -142,8 +142,8 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         return null;
     }
 
-    String getGptAnswer(String userMessage) {
-        return chatClient.call(userMessage);
+    String getGptAnswer(Long chatId, String userMessage) {
+        return chatClient.call(chatId, userMessage);
     }
 
     private void logUserMessage(Message data) {

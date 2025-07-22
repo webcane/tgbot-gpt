@@ -3,13 +3,23 @@ package cane.brothers.gpt.bot.telegram.settings;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Enum representing settings for boolean values.
+ * Each setting has a default value of type Boolean.
+ * Example: CALLBACK_REPLY can be true or false.
+ */
 @Getter
 @RequiredArgsConstructor
-enum BooleanSetting implements CommandSetting {
+enum BooleanSetting implements CommandSetting<Boolean> {
     CALLBACK_REPLY(Boolean.TRUE),
     CALLBACK_MARKUP(Boolean.TRUE);
 
     private final Boolean defaultValue;
+
+    @Override
+    public String getMessage(Boolean useCommand) {
+        return String.format("%s is %s", this, useCommand ? "active" : "inactive");
+    }
 
     public static BooleanSetting fromString(String command) {
         if (command.startsWith("/")) {

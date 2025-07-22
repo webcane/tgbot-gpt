@@ -44,9 +44,10 @@ all data is lost and the environment is reinitialized using the user_data cloud-
 
 # Telegram commands
 ```
-/start - start new dialog
-/markup - hightlight source code 
-/reply - give a immediate response that the request is being processed
+start - start new dialog
+markup - hightlight source code 
+reply - give a immediate response that the request is being processed
+model - choose chat gpt model (openai, gimini)
 ```
 
 # Contributing
