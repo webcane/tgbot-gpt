@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 echo "Starting user-data script execution..." >> "/var/log/${app_name}.log"
 
 # configure git
@@ -44,25 +43,6 @@ docker compose version
 
 # add ubuntu user into docker group
 sudo usermod -aG docker ubuntu
-
-# install gcloud dependencies
-sudo apt install apt-transport-https ca-certificates gnupg curl -y
-
-# add the google cloud sdk to apt sources
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
-# import google cloud public key
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-
-# install google cloud sdk
-echo "Install gcloud" >> "/var/log/${app_name}.log"
-sudo apt update
-sudo apt install google-cloud-sdk -y
-
-# init google cloud sdk
-echo "Configure google cloud sdk" >> "/var/log/${app_name}.log"
-gcloud config set project ${google_cloud_project_id}
-gcloud version
 
 # add .env data
 echo "Create .env file" >> "/var/log/${app_name}.log"
