@@ -38,7 +38,6 @@ class OpenAiConfig {
                 .apiKey(commonProperties.getApiKey())
                 .baseUrl(commonProperties.getBaseUrl())
                 .restClientBuilder(restClientBuilder)
-                //.webClientBuilder((WebClient.Builder)webClientBuilderProvider.getIfAvailable(WebClient::builder))
                 .responseErrorHandler(responseErrorHandler).build();
     }
 
