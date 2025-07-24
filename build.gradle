@@ -14,16 +14,15 @@ java {
 	}
 }
 
-jar {
-	manifest {
-		attributes(
-				'Main-Class': 'cane.brothers.gpt.bot.App'
-		)
+springBoot {
+	buildInfo {
+		enabled = true
 	}
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	from {
-		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-	}
+	mainClass = 'cane.brothers.gpt.bot.App'
+}
+
+tasks.named('bootJar') {
+	layered()
 }
 
 configurations {
