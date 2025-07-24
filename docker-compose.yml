@@ -1,39 +1,34 @@
 services:
-  builder:
-    image: gradle:8.14.2-jdk21-ubi-minimal
-    container_name: gradle-gpt
-    working_dir: /app
-    volumes:
-      - .:/app   # Mount the current directory to `/app` in the container
-      - gradle-cache:/root/.gradle # Reuse Gradle cache for faster builds
-    command: gradle bootJar
-    networks:
-      - tgbot-gpt-network
-
   app:
-    image: eclipse-temurin:21-jdk-jammy # Use a lightweight OpenJDK image for running the app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tgbot-gpt:latest
     container_name: tgbot-gpt
-    depends_on:
-      builder:
-        condition: service_completed_successfully
     working_dir: /app
     volumes:
-      - .:/app   # Mount the current directory to `/app` in the container
-      - ~/voice:/app/src/main/resources/voice
-      - /var/lib/tmp:/tmp
+      - voice:/app/src/main/resources/voice
+      - tmp_data:/tmp
+#    tmpfs: /tmp
     env_file:
       - .env
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
-    command: java -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME -Dhttp.proxyPort=$TGBOT_PROXY_PORT -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD -jar build/libs/tgbot-gpt-0.0.1.jar
+    command:
+      - java
+      - -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME
+      - -Dhttp.proxyPort=$TGBOT_PROXY_PORT
+      - -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME
+      - -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD
+      - org.springframework.boot.loader.launch.JarLauncher
     restart: always
     networks:
-      - tgbot-gpt-network
+      tgbot-gpt-network: { }
 
 volumes:
-  gradle-cache:
   voice:
+  tmp_data:
 
 networks:
   tgbot-gpt-network:
