@@ -43,8 +43,6 @@ dependencies {
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 	// feign client
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-	// gemini - vertexai
-	implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
 	// telegram bot libs
 	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.0.0'
 	implementation 'org.telegram:telegrambots-client:9.0.0'
@@ -64,9 +62,14 @@ dependencies {
 	//testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
-tasks.named('bootJar') {
+jar {
+	enabled = false
+}
+
+bootJar {
+	archiveFileName = "${project.name}.jar"
 	layered {
-		enabled = false
+		enabled = true
 	}
 }
 

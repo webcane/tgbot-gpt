@@ -20,7 +20,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,7 +128,8 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             }
 
             // сохраняем файл
-            try (InputStream inputStream = new URL(fileUrl).openStream()) {
+            URI uri = new URI(fileUrl);
+            try (InputStream inputStream = uri.toURL().openStream()) {
                 try (FileOutputStream outputStream = new FileOutputStream(filePath.toFile())) {
                     outputStream.getChannel().transferFrom(Channels.newChannel(inputStream), 0, Long.MAX_VALUE);
                 }
@@ -136,7 +138,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             var fp = filePath.toString();
             log.debug("relative path: {}", fp);
             return new FileSystemResource(filePath);
-        } catch (IOException ex) {
+        } catch (URISyntaxException | IOException ex) {
             log.error("unable to download file {}", file, ex);
         }
         return null;

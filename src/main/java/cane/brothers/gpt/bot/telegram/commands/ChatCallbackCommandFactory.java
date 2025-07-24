@@ -16,6 +16,7 @@ public class ChatCallbackCommandFactory implements CommandFactory<CallbackQuery>
     private final ApplicationContext context;
 
     @Override
+    @SuppressWarnings("unchecked")
     public ChatCommand<CallbackQuery> create(String message) {
         try {
             return (ChatCommand<CallbackQuery>) context.getBean(message);

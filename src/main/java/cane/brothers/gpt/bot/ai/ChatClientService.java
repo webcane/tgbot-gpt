@@ -16,9 +16,6 @@ public class ChatClientService {
     @Qualifier("openAiChatClient")
     private final ChatClient openAiChatClient;
 
-    @Qualifier("geminiChatClient")
-    private final ChatClient geminiChatClient;
-
     private final ChatSettingsQuery botSettings;
 
     public String call(Long chatId, String userMessage) {
@@ -27,7 +24,6 @@ public class ChatClientService {
 
             ChatClient client;
             switch (model) {
-                case GEMINI -> client = geminiChatClient;
                 case OPENAI -> client = openAiChatClient;
                 default -> throw new IllegalArgumentException("Unknown model: " + model);
             }
