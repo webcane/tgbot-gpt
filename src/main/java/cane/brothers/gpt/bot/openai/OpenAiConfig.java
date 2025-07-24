@@ -1,9 +1,10 @@
 package cane.brothers.gpt.bot.openai;
 
-import org.springframework.ai.autoconfigure.openai.OpenAiAudioTranscriptionProperties;
-import org.springframework.ai.autoconfigure.openai.OpenAiConnectionProperties;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionProperties;
+import org.springframework.ai.model.openai.autoconfigure.OpenAiConnectionProperties;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
 import org.springframework.context.annotation.Bean;
