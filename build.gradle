@@ -15,14 +15,8 @@ java {
 }
 
 springBoot {
-	buildInfo {
-		enabled = true
-	}
+	buildInfo()
 	mainClass = 'cane.brothers.gpt.bot.App'
-}
-
-tasks.named('bootJar') {
-	layered()
 }
 
 configurations {
@@ -68,6 +62,12 @@ dependencies {
 	// Lombok for testing
 	//testCompileOnly 'org.projectlombok:lombok:1.18.30'
 	//testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.named('bootJar') {
+	layered {
+		enabled = false
+	}
 }
 
 tasks.named('test') {
