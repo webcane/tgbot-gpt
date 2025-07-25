@@ -23,6 +23,17 @@ jobs:
     runs-on: ubuntu-22.04
     environment: aws
     steps:
+      - name: Dump github context
+        run: echo "$GITHUB_CONTEXT"
+        shell: bash
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+      - name: Repo name
+#        run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+        run: echo "$REPO_NAME"
+        shell: bash
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
       - name: Print environment variables
         run: |
           echo "Repository name: $GITHUB_REPOSITORY"
