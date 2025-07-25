@@ -12,10 +12,10 @@ env:
   APP_NAME: ${{ github.event.repository.name }}
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
-  ECR_REPOSITORY: ${{ env.APP_NAME }}
+  ECR_REPOSITORY: "${APP_NAME}"
   GITHUB_SHA: ${{ github.sha }}
   IMAGE_TAG: "${ GITHUB_SHA::7 }"
-  JAR_FILE_NAME: ${{ env.APP_NAME}}.jar
+  JAR_FILE_NAME: "${APP_NAME}.jar"
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
@@ -72,18 +72,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Получаем URI реестра из предыдущего шага
         run: |
           echo "ECR registry: $ECR_REGISTRY"
-          # Полное имя образа: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
+          # full image name format: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
           IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
-          # Если имя JAR-файла отличается от дефолтного
-          # JAR_FILE_NAME="telegram-bot-ai-0.0.1.jar" # Замените на фактическое имя вашего JAR
-          # Имя JAR файла после сборки bootJar: build/libs/your-app-version.jar
-          # Если вы хотите, чтобы имя было 'telegram-bot-ai-0.0.1.jar', убедитесь, что ваш build.gradle
-          # явно задает archiveFileName для bootJar:
-          # tasks.named('bootJar') { archiveFileName = "telegram-bot-ai-${version}.jar" }
-          # Строим Docker образ, передавая имя JAR-файла как build-arg,
-          # чтобы Dockerfile мог его использовать
           docker build \
-            --build-arg JAR_FILE_NAME=${JAR_FILE_NAME} \
+            --build-arg JAR_FILE_NAME=${{ env.JAR_FILE_NAME }} \
             -t $IMAGE_URI \
             -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest \
             .      
@@ -92,5 +84,4 @@ jobs:
 
       - name: Verify Docker Image on ECR (Optional)
         run: |
-          # Просто для проверки, что образ появился
           aws ecr describe-images --repository-name ${{ env.ECR_REPOSITORY }} --image-ids imageTag=${{ env.IMAGE_TAG }}
