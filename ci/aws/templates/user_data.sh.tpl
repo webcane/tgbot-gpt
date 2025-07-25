@@ -1,27 +1,9 @@
 #!/bin/bash
 echo "Starting user-data script execution..." >> "/var/log/${app_name}.log"
 
-# configure git
-echo "Configure git" >> "/var/log/${app_name}.log"
-git config --system init.defaultBranch master
-git config --system user.name "ec2"
-git config --system user.email "${email}"
-
-# init git repo
-echo "create git repo directories" >> "/var/log/${app_name}.log"
-mkdir /home/ubuntu/${app_name}.git
+# init working repo
 mkdir /home/ubuntu/${app_name}.www
-cd /home/ubuntu/${app_name}.git
-git init --bare
-chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.git
 chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www
-
-# create commit hook
-echo "create post-receive hook" >> "/var/log/${app_name}.log"
-touch /home/ubuntu/${app_name}.git/hooks/post-receive
-sudo chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.git/hooks/post-receive
-chmod +x /home/ubuntu/${app_name}.git/hooks/post-receive
-echo ${hook_data} > /home/ubuntu/${app_name}.git/hooks/post-receive
 
 # add Docker's official GPG key
 sudo apt-get update

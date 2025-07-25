@@ -65,6 +65,8 @@ locals {
     hook_data = local.hook_data
     env_data  = local.env_data
   })
+  ecr_repository_name    = var.app_name
+  github_repository_name = var.app_name
 }
 
 module "tgbot-ec2" {
@@ -75,7 +77,7 @@ module "tgbot-ec2" {
   instance_type               = "t2.micro"
   key_name                    = var.key_name
   vpc_security_group_ids      = [module.tgbot-sg.security_group_id]
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   subnet_id                   = data.aws_subnets.this.ids[0]
   user_data                   = local.cloud_init_data
   root_block_device           = {
@@ -143,4 +145,126 @@ resource "aws_budgets_budget" "free_tier" {
     Terraform = "true"
     Project   = var.app_name
   }
+}
+
+# ECR
+module "ecr_repository" {
+  source                          = "terraform-aws-modules/ecr/aws"
+  version                         = "~> 2.4.0"
+  repository_name                 = local.ecr_repository_name
+  create_repository               = true
+  # Configuration for image scanning and tag immutability (recommended)
+  repository_image_scan_on_push   = true
+  # Prevents tags from being overwritten (e.g., 'latest')
+  repository_image_tag_mutability = "IMMUTABLE"
+  repository_lifecycle_policy     = jsonencode({
+    rules = [
+      {
+        rulePriority = 1,
+        description   = "Keep the latest 5 tagged images",
+        selection     = {
+          tagStatus   = "tagged",
+          tagPrefixList = ["latest"],
+          countType   = "imageCountMoreThan",
+          countNumber = 5
+        },
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+# --- IAM Role for GitHub Actions (using OpenID Connect OIDC) ---
+# This is the most secure way to authenticate GitHub Actions with AWS.
+# It avoids storing long-lived AWS Access Key IDs and Secret Access Keys in GitHub Secrets.
+
+# 1. Get the OIDC provider for GitHub
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+  # Список отпечатков (thumbprints) для корневых сертификатов провайдера OIDC.
+  # Их можно получить, используя команду openssl или из документации AWS/GitHub.
+  # Эти значения стабильны, но могут меняться со временем.
+  # Актуальный список можно найти здесь:
+  # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#configuring-aws-with-openid-connect
+  # или получить через 'openssl s_client -showcerts -verify 5 -connect token.actions.githubusercontent.com:443 < /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ print $0 }' | openssl x509 -fingerprint -noout'
+  thumbprint_list = [
+    "7560d6f40fa55195f740ee2b1b7c0b4836cbe103",
+    "a031c46782e0e6c694c7739af3c983a93f00ef16"
+  ]
+
+  tags = {
+    Terraform = "true"
+    Project   = var.app_name
+    Name      = "GitHubActions-OIDC-Provider"
+  }
+}
+
+# 2. Create the IAM role
+resource "aws_iam_role" "github_actions_ecr" {
+  name = "${local.ecr_repository_name}-github-actions-ecr-role"
+
+  # Policy that allows OIDC authentication from GitHub Actions
+  assume_role_policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github_actions.arn
+        },
+        Action    = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            # Limit the role to a specific GitHub repository for enhanced security
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository_owner}/${local.github_repository_name}:environment:${var.github_environment_name}"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# 3. Create an IAM policy with ECR permissions
+resource "aws_iam_policy" "github_actions_ecr_policy" {
+  name        = "${local.ecr_repository_name}-github-actions-ecr-policy"
+  description = "Policy to allow GitHub Actions to push/pull from ECR for ${local.ecr_repository_name}"
+
+  policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetAuthorizationToken" # Needed for authentication
+        ],
+        Resource = module.ecr_repository.repository_arn # Apply permissions only to our specific ECR repo
+      },
+      # The GetAuthorizationToken action is a global action and does not support resource-level permissions.
+      # It must be allowed for all resources (*).
+      {
+        Effect   = "Allow",
+        Action   = "ecr:GetAuthorizationToken",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# 4. Attach the policy to the role
+resource "aws_iam_role_policy_attachment" "github_actions_ecr_attachment" {
+  role       = aws_iam_role.github_actions_ecr.name
+  policy_arn = aws_iam_policy.github_actions_ecr_policy.arn
 }

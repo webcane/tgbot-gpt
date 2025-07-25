@@ -4,6 +4,12 @@ variable "app_name" {
   default     = "tgbot-gpt"
 }
 
+variable "aws_region" {
+  description = "AWS region for the ECR repository and IAM role."
+  type        = string
+  default     = "eu-central-1"
+}
+
 variable "key_name" {
   description = "SSH key name"
   type        = string
@@ -40,8 +46,14 @@ variable "tgbot_proxy_password" {
 variable "openai_api_key" {
 }
 
-variable "google_cloud_project_id" {
+variable "github_repository_owner" {
+  description = "The owner (organization or user) of the GitHub repository."
+  type        = string
+  default     = "webcane"
 }
 
-variable "google_cloud_region" {
+variable "github_environment_name" {
+  description = "The github action environment name."
+  type        = string
+  default     = "aws"
 }
