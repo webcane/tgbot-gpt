@@ -20,6 +20,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-22.04
     environment: aws
+    env:
+      JAVA_VERSION: '21'
     permissions:
       id-token: write # Это абсолютно необходимо для OIDC!
       contents: read  # Это нужно для checkout-а репозитория
@@ -34,12 +36,12 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
-      - name: Set up JDK 21
+      - name: Set up JDK ${{env.JAVA_VERSION}}
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin' # Используем Temurin OpenJDK
-          cache: 'gradle' # Включаем кэширование Gradle зависимостей
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew # Делаем gradlew исполняемым
