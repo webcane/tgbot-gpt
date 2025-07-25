@@ -10,13 +10,13 @@ on:
       - master
   workflow_dispatch: # Позволяет запускать workflow вручную из UI GitHub Actions
 
-env:
-  APP_NAME: tgbot-gpt
-  AWS_REGION: eu-central-1
-  AWS_ACCOUNT_ID: "721236953549"
-  ECR_REPOSITORY: ${{ env.APP_NAME }}
-  IMAGE_TAG: ${{ github.sha }}
-  JAR_FILE_NAME: ${{ env.APP_NAME }}.jar
+#env:
+#  APP_NAME: tgbot-gpt
+#  AWS_REGION: eu-central-1
+#  AWS_ACCOUNT_ID: "721236953549"
+#  ECR_REPOSITORY: ${{ env.APP_NAME }}
+#  IMAGE_TAG: ${{ github.sha }}
+#  JAR_FILE_NAME: ${{ env.APP_NAME }}.jar
 
 jobs:
   build-and-push:
