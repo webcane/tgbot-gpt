@@ -68,9 +68,8 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Получаем URI реестра из предыдущего шага
           ECR_REPOSITORY: ${{ github.event.repository.name }}
+          IMAGE_TAG: ${ GITHUB_SHA::7 }
         run: |
-          echo Set image tag
-          echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV
           echo ${{ env.IMAGE_TAG }}
           echo "ECR registry: $ECR_REGISTRY"
           # full image name format: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
