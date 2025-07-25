@@ -13,7 +13,6 @@ env:
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
   ECR_REPOSITORY: $APP_NAME
-  COMMIT_SHORT_SHA: $(git rev-parse --short ${{ github.sha }})
   IMAGE_TAG: ${{ github.sha }}
   JAR_FILE_NAME: $APP_NAME.jar
 jobs:
@@ -24,6 +23,10 @@ jobs:
       id-token: write # Это абсолютно необходимо для OIDC!
       contents: read  # Это нужно для checkout-а репозитория
     steps:
+      - name: Set short git commit SHA
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
       - name: Dump github context
         run: echo "$GITHUB_CONTEXT"
         shell: bash
@@ -40,6 +43,7 @@ jobs:
           echo "Repository name: $GITHUB_REPOSITORY"
           echo "Branch name: $GITHUB_REF"
           echo "Commit SHA: $GITHUB_SHA"
+          echo "Commit Short SHA: $COMMIT_SHORT_SHA"
           echo "Workflow name: $GITHUB_WORKFLOW"
           echo "Workflow actor: $GITHUB_ACTOR"
           echo "Workspace: $GITHUB_WORKSPACE"
