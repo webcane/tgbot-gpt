@@ -13,7 +13,8 @@ env:
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
   ECR_REPOSITORY: $APP_NAME
-  IMAGE_TAG: ${{ github.sha }}
+  GITHUB_SHA: ${{ github.sha }}
+  IMAGE_TAG: ${GITHUB_SHA::7}
   JAR_FILE_NAME: $APP_NAME.jar
 jobs:
   build-and-push:
@@ -23,6 +24,10 @@ jobs:
       id-token: write # Это абсолютно необходимо для OIDC!
       contents: read  # Это нужно для checkout-а репозитория
     steps:
+      - name: Step short
+        run: echo ${GITHUB_SHA::7}
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Set short git commit SHA
         run: |
           calculatedSha=$(git rev-parse --short ${{ github.sha }})
@@ -33,7 +38,7 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
       - name: Repo name
-#        run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+        #        run: echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
         run: echo "$REPO_NAME"
         shell: bash
         env:
@@ -47,8 +52,6 @@ jobs:
           echo "Workflow name: $GITHUB_WORKFLOW"
           echo "Workflow actor: $GITHUB_ACTOR"
           echo "Workspace: $GITHUB_WORKSPACE"
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
