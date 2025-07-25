@@ -1,5 +1,4 @@
 name: Build and Push to ECR
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
     branches:
       - master
   workflow_dispatch: # Позволяет запускать workflow вручную из UI GitHub Actions
-
 #env:
 #  APP_NAME: tgbot-gpt
 #  AWS_REGION: eu-central-1
@@ -17,13 +15,14 @@ on:
 #  ECR_REPOSITORY: ${{ env.APP_NAME }}
 #  IMAGE_TAG: ${{ github.sha }}
 #  JAR_FILE_NAME: ${{ env.APP_NAME }}.jar
-
+permissions:
+  id-token: write # Это абсолютно необходимо для OIDC!
+  contents: read  # Это нужно для checkout-а репозитория
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
     environment: aws
     steps:
-
       - name: Print environment variables
         run: |
           echo "Repository name: $GITHUB_REPOSITORY"
@@ -32,26 +31,20 @@ jobs:
           echo "Workflow name: $GITHUB_WORKFLOW"
           echo "Workflow actor: $GITHUB_ACTOR"
           echo "Workspace: $GITHUB_WORKSPACE"
-
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin' # Используем Temurin OpenJDK
           cache: 'gradle' # Включаем кэширование Gradle зависимостей
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew # Делаем gradlew исполняемым
-
       - name: Download dependencies by Gradle
         run: gradlew dependencies --no-daemon # for caching
-
       - name: Build Layered Spring Boot app with Gradle
         run: ./gradlew bootJar --no-daemon # Собираем слоеный JAR
-
       - name: Configure AWS credentials (using OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -61,41 +54,32 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           # Дополнительно: можно указать duration-seconds, role-session-name и т.д.
           role-session-name: GitHubActionsSession # Опционально, для лучшего логирования в CloudTrail
-        permissions:
-          id-token: write # Это абсолютно необходимо для OIDC!
-          contents: read  # Это нужно для checkout-а репозитория
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2 # Авторизуемся в ECR
         # Output этого шага содержит токен и ECR URI
-
       - name: Build and push Docker image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Получаем URI реестра из предыдущего шага
         run: |
           echo "ECR registry: $ECR_REGISTRY"
           # Полное имя образа: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
-          IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
-          
+          IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
           # Если имя JAR-файла отличается от дефолтного
           # JAR_FILE_NAME="telegram-bot-ai-0.0.1.jar" # Замените на фактическое имя вашего JAR
           # Имя JAR файла после сборки bootJar: build/libs/your-app-version.jar
           # Если вы хотите, чтобы имя было 'telegram-bot-ai-0.0.1.jar', убедитесь, что ваш build.gradle
           # явно задает archiveFileName для bootJar:
           # tasks.named('bootJar') { archiveFileName = "telegram-bot-ai-${version}.jar" }
-
           # Строим Docker образ, передавая имя JAR-файла как build-arg,
           # чтобы Dockerfile мог его использовать
           docker build \
             --build-arg JAR_FILE_NAME=${JAR_FILE_NAME} \
             -t $IMAGE_URI \
             -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest \
-            .
-          
+            .      
           docker push $IMAGE_URI
           docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
-
       - name: Verify Docker Image on ECR (Optional)
         run: |
           # Просто для проверки, что образ появился
