@@ -70,7 +70,7 @@ jobs:
           ECR_REPOSITORY: ${{ github.event.repository.name }}
         run: |
           echo Set image tag
-          echo "IMAGE_TAG=${ GITHUB_SHA::7 }" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
           echo "ECR registry: $ECR_REGISTRY"
           # full image name format: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
           IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:${ GITHUB_SHA::7 }" 
