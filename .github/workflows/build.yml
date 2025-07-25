@@ -8,13 +8,13 @@ on:
     branches:
       - master
   workflow_dispatch: # Позволяет запускать workflow вручную из UI GitHub Actions
-#env:
-#  APP_NAME: tgbot-gpt
-#  AWS_REGION: eu-central-1
-#  AWS_ACCOUNT_ID: "721236953549"
-#  ECR_REPOSITORY: ${{ env.APP_NAME }}
-#  IMAGE_TAG: ${{ github.sha }}
-#  JAR_FILE_NAME: ${{ env.APP_NAME }}.jar
+env:
+  APP_NAME: ${{ github.event.repository.name }}
+  AWS_REGION: ${{vars.AWS_REGION}}
+  AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
+  ECR_REPOSITORY: $APP_NAME
+  IMAGE_TAG: ${{ github.sha:0:7 }}
+  JAR_FILE_NAME: $APP_NAME.jar
 permissions:
   id-token: write # Это абсолютно необходимо для OIDC!
   contents: read  # Это нужно для checkout-а репозитория
@@ -61,7 +61,7 @@ jobs:
         with:
           # Здесь указывается ARN IAM роли, которую GitHub Actions будет пытаться принять
           # Используйте ARN, который вы получили из `terraform output github_actions_iam_role_arn`
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.APP_NAME }}-github-actions-ecr-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/$APP_NAME-github-actions-ecr-role
           aws-region: ${{ env.AWS_REGION }}
           # Дополнительно: можно указать duration-seconds, role-session-name и т.д.
           role-session-name: GitHubActionsSession # Опционально, для лучшего логирования в CloudTrail
