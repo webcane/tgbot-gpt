@@ -12,10 +12,10 @@ env:
   APP_NAME: ${{ github.event.repository.name }}
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
-  ECR_REPOSITORY: "${APP_NAME}"
+  ECR_REPOSITORY: ${{ env.APP_NAME }}
   GITHUB_SHA: ${{ github.sha }}
   IMAGE_TAG: "${ GITHUB_SHA::7 }"
-  JAR_FILE_NAME: "${APP_NAME}.jar"
+  JAR_FILE_NAME: ${{ env.APP_NAME}}.jar
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
@@ -24,7 +24,7 @@ jobs:
       JAVA_VERSION: '21'
     permissions:
       id-token: write # Это абсолютно необходимо для OIDC!
-      contents: read  # Это нужно для checkout-а репозитория
+      contents: read  # access to check out code and install dependencies
     steps:
 
       - name: Checkout repository
@@ -57,7 +57,7 @@ jobs:
         with:
           # Здесь указывается ARN IAM роли, которую GitHub Actions будет пытаться принять
           # Используйте ARN, который вы получили из `terraform output github_actions_iam_role_arn`
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/$APP_NAME-github-actions-ecr-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.APP_NAME }}-github-actions-ecr-role
           aws-region: ${{ env.AWS_REGION }}
           # Дополнительно: можно указать duration-seconds, role-session-name и т.д.
           role-session-name: GitHubActionsSession # Опционально, для лучшего логирования в CloudTrail
