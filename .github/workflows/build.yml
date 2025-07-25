@@ -13,15 +13,16 @@ env:
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
   ECR_REPOSITORY: $APP_NAME
-  IMAGE_TAG: ${{ github.sha:0:7 }}
+  COMMIT_SHORT_SHA: $(git rev-parse --short ${{ github.sha }})
+  IMAGE_TAG: ${{ github.sha }}
   JAR_FILE_NAME: $APP_NAME.jar
-permissions:
-  id-token: write # Это абсолютно необходимо для OIDC!
-  contents: read  # Это нужно для checkout-а репозитория
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
     environment: aws
+    permissions:
+      id-token: write # Это абсолютно необходимо для OIDC!
+      contents: read  # Это нужно для checkout-а репозитория
     steps:
       - name: Dump github context
         run: echo "$GITHUB_CONTEXT"
