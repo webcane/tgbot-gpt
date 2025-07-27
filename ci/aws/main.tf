@@ -156,7 +156,7 @@ module "ecr_repository" {
   # Configuration for image scanning and tag immutability (recommended)
   repository_image_scan_on_push   = true
   # Prevents tags from being overwritten (e.g., 'latest')
-  repository_image_tag_mutability = "IMMUTABLE"
+  repository_image_tag_mutability = "MUTABLE"
   repository_lifecycle_policy     = jsonencode({
     rules = [
       {
@@ -248,7 +248,8 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
-          "ecr:GetAuthorizationToken" # Needed for authentication
+          "ecr:GetAuthorizationToken", # Needed for authentication
+          "ecr:DescribeImages"
         ],
         Resource = module.ecr_repository.repository_arn # Apply permissions only to our specific ECR repo
       },
