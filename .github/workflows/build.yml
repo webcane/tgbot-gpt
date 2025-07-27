@@ -12,7 +12,6 @@ env:
   APP_NAME: ${{ github.event.repository.name }}
   AWS_REGION: ${{vars.AWS_REGION}}
   AWS_ACCOUNT_ID: ${{vars.AWS_ACCOUNT_ID}}
-  GITHUB_SHA: ${{ github.sha }}
 jobs:
   build-and-push:
     runs-on: ubuntu-22.04
@@ -68,14 +67,13 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Получаем URI реестра из предыдущего шага
           ECR_REPOSITORY: ${{ github.event.repository.name }}
-          IMAGE_TAG: ${ GITHUB_SHA::7 }
-        run: |
-          echo ${{ env.IMAGE_TAG }}
-          echo "ECR registry: $ECR_REGISTRY"
+          IMAGE_TAG: ${{ github.sha | slice(0, 7) }}
           # full image name format: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
-          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" 
+          IMAGE_URI: "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+        run: |
+          echo $IMAGE_URI
           docker build \
-            --build-arg JAR_FILE_NAME=${{ github.event.repository.name }}.jar \
+            --build-arg JAR_FILE_NAME=${{ env.ECR_REPOSITORY }}.jar \
             -t $IMAGE_URI \
             -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest \
             .      
@@ -85,4 +83,4 @@ jobs:
       - name: Verify Docker Image on ECR (Optional)
         run: |
           echo ${{ env.IMAGE_TAG }}
-          aws ecr describe-images --repository-name ${{ env.ECR_REPOSITORY }} --image-ids imageTag=${{ env.IMAGE_TAG }}
+          aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG
