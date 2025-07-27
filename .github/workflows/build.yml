@@ -77,10 +77,12 @@ jobs:
           # full image name format: registry_id.dkr.ecr.region.amazonaws.com/repository_name:tag
           IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
           echo $IMAGE_URI
-          echo ${{ env.IMAGE_URI }}
+          echo "IMAGE_URI = ${{ env.IMAGE_URI }}"
+          docker --version
+          which docker
           docker build \
             --build-arg JAR_FILE_NAME=${{ env.ECR_REPOSITORY }}.jar \
-            -t ${{ env.IMAGE_URI }} \
+            -t $IMAGE_URI \
             -t ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest \
             .      
           docker push $IMAGE_URI

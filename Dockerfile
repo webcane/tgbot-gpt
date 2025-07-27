@@ -1,6 +1,9 @@
 # Multi-stage build для создания легкого и кэшируемого образа
 FROM eclipse-temurin:21-jdk-jammy AS build
 
+# Объявляем build argument для имени JAR-файла
+ARG JAR_FILE_NAME=app.jar
+
 # Устанавливаем Gradle, если вы собираете проект внутри контейнера Dockerfile
 # Если вы предпочитаете собирать проект на хосте, этот блок можно убрать,
 # и просто скопировать готовый JAR в финальный образ.
@@ -19,7 +22,7 @@ RUN ./gradlew dependencies --no-daemon
 RUN ./gradlew bootJar --no-daemon
 
 # Извлечение слоев из слоеного JAR во временную директорию
-RUN java -Djarmode=tools -jar build/libs/tgbot-gpt.jar extract --layers --launcher --destination extracted || exit 1
+RUN java -Djarmode=tools -jar build/libs/${JAR_FILE_NAME} extract --layers --launcher --destination extracted || exit 1
 
 # --- Финальный образ ---
 FROM eclipse-temurin:21-jre-jammy
@@ -31,15 +34,12 @@ RUN groupadd spring --gid 1000 && useradd spring -g spring --uid 1000 \
     && chown spring:spring /app
 
 USER spring
-
 WORKDIR /app
-
-# Копируем слоеный JAR из сборочной стадии
-COPY --from=build --chown=spring:spring /app/build/libs/tgbot-gpt.jar ./app.jar
 
 # Копируем извлеченные слои в нужные директории в финальном образе
 # Эти слои будут кэшироваться Docker'ом независимо
 COPY --from=build --chown=spring:spring /app/extracted/dependencies/ ./
+# COPY --from=build --chown=spring:spring /app/extracted/snapshot-dependencies/ ./
 COPY --from=build --chown=spring:spring /app/extracted/spring-boot-loader/ ./
 COPY --from=build --chown=spring:spring /app/extracted/application/ ./
 
