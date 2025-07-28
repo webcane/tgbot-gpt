@@ -67,6 +67,9 @@ locals {
   })
   ecr_repository_name    = var.app_name
   github_repository_name = var.app_name
+
+  # aws_iam_role.ec2_ssm_role.name
+  iam_role_name = "${var.app_name}-ec2-ssm-role"
 }
 
 module "tgbot-ec2" {
@@ -80,6 +83,10 @@ module "tgbot-ec2" {
   associate_public_ip_address = true
   subnet_id                   = data.aws_subnets.this.ids[0]
   user_data                   = local.cloud_init_data
+  # Enable creation of EC2 IAM instance profile
+  create_iam_instance_profile = true
+  # role to deal with another AWS services. see aws_iam_role_policy_attachment.ec2_ssm_policy_attachment
+  iam_role_name               = local.iam_role_name
   root_block_device           = {
     delete_on_termination = true
     encrypted             = false
@@ -161,12 +168,12 @@ module "ecr_repository" {
     rules = [
       {
         rulePriority = 1,
-        description   = "Keep the latest 5 tagged images",
-        selection     = {
-          tagStatus   = "tagged",
+        description  = "Keep the latest 5 tagged images",
+        selection    = {
+          tagStatus     = "tagged",
           tagPrefixList = ["latest"],
-          countType   = "imageCountMoreThan",
-          countNumber = 5
+          countType     = "imageCountMoreThan",
+          countNumber   = 5
         },
         action = {
           type = "expire"
@@ -269,3 +276,13 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecr_attachment" {
   role       = aws_iam_role.github_actions_ecr.name
   policy_arn = aws_iam_policy.github_actions_ecr_policy.arn
 }
+
+# --- Присоединение управляемой политики SSM к EC2 ---
+# Политика 'AmazonSSMManagedInstanceCore' предоставляет все необходимые разрешения
+# для SSM Agent, чтобы он мог регистрироваться в SSM и выполнять команды.
+resource "aws_iam_role_policy_attachment" "ec2_ssm_policy_attachment" {
+  role       = module.tgbot-ec2.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+

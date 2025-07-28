@@ -2,8 +2,8 @@
 echo "Starting user-data script execution..." >> "/var/log/${app_name}.log"
 
 # init working repo
-mkdir /home/ubuntu/${app_name}.www
-chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www
+mkdir "/home/ubuntu/${app_name}.www"
+chown -R ubuntu:ubuntu "/home/ubuntu/${app_name}.www"
 
 # add Docker's official GPG key
 sudo apt-get update
@@ -25,6 +25,7 @@ docker compose version
 
 # add ubuntu user into docker group
 sudo usermod -aG docker ubuntu
+newgrp docker
 
 # add .env data
 echo "Create .env file" >> "/var/log/${app_name}.log"
