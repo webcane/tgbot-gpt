@@ -8,7 +8,7 @@ set +a
 # --- 1. Определение переменных ---
 APP_DIR="/home/ubuntu/$PROJECT.www"
 AWS_REGION=${AWS_REGION:-eu-central-1} # Установите дефолт или убедитесь, что переменная приходит
-AWS_ACCOUNT=${AWS_ACCOUNT:-$(aws sts get-caller-identity --query Account --output text --region "$AWS_REGION")} # Автоматически получить ID аккаунта
+# AWS_ACCOUNT=${AWS_ACCOUNT:-$(aws sts get-caller-identity --query Account --output text --region "$AWS_REGION")} # Автоматически получить ID аккаунта
 
 echo "--- $(date) ---"
 echo "Starting deployment..."
@@ -31,14 +31,14 @@ cd "$APP_DIR" || { echo "Error: Cannot change directory to $APP_DIR. Exiting."; 
 
 # --- 3. Аутентификация в ECR ---
 # ЭТОТ ШАГ КРИТИЧЕСКИ ВАЖЕН! Docker Compose нужен доступ к ECR.
-echo "Logging in to ECR using IAM Role..."
-# Используем ECR_REGISTRY для логина, даже если не делаем pull явно
-aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to log in to ECR. Exiting."
-    exit 1
-fi
-echo "ECR login successful."
+#echo "Logging in to ECR using IAM Role..."
+## Используем ECR_REGISTRY для логина, даже если не делаем pull явно
+#aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
+#if [ $? -ne 0 ]; then
+#    echo "Error: Failed to log in to ECR. Exiting."
+#    exit 1
+#fi
+#echo "ECR login successful."
 
 # --- 4. Остановка текущего Docker Compose приложения ---
 echo "Stopping existing Docker Compose services..."

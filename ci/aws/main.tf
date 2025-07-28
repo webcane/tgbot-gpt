@@ -59,12 +59,20 @@ locals {
     app_name = var.app_name
   })
   cloud_init_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
-    arch      = "amd64"
-    app_name  = var.app_name
-    codename  = "noble"
-    email     = var.alert_email
-    hook_data = local.hook_data
-    env_data  = local.env_data
+    arch               = "amd64"
+    app_name           = var.app_name
+    codename           = "noble"
+    email              = var.alert_email
+    hook_data          = local.hook_data
+    env_data           = local.env_data
+    # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
+    # предполагаем, что скрипт выполняется от имени root.
+    docker_config_dir  = "/root/.docker"
+    docker_config_file = "$DOCKER_CONFIG_DIR/config.json"
+    ecr_helper_path    = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
+    # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
+    # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
+    helper_version     = "0.10.1"
   })
   ecr_repository_name    = var.app_name
   github_repository_name = var.app_name
