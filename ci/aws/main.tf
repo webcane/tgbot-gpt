@@ -68,11 +68,13 @@ locals {
     # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
     # предполагаем, что скрипт выполняется от имени root.
     docker_config_dir  = "/root/.docker"
-    docker_config_file = "$DOCKER_CONFIG_DIR/config.json"
+    docker_config_file = "/root/.docker/config.json"
     ecr_helper_path    = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
     # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
     # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
     helper_version     = "0.10.1"
+    aws_region         = var.aws_region
+    aws_account        = var.aws_account
   })
   ecr_repository_name    = var.app_name
   github_repository_name = var.app_name

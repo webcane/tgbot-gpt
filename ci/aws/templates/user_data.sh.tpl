@@ -45,25 +45,30 @@ sudo ./aws/install
 /usr/local/bin/aws --version
 
 # install jq
-echo "Install jq" >> "/var/log/${app_name}.log"
-sudo apt install -y jq
+#echo "Install jq" >> "/var/log/${app_name}.log"
+#sudo apt install -y jq
 
 # Install and configure ECR Credential Helper
 
 # Создаем директорию .docker, если ее нет
+# Создаем или модифицируем config.json, чтобы Docker использовал ecr-login для ECR
+echo "Create ${docker_config_file}..." >> "/var/log/${app_name}.log"
 mkdir -p "${docker_config_dir}"
 chmod 700 "${docker_config_dir}" # Устанавливаем безопасные права
+
+echo "Configuring Docker to use ECR credential helper in ${docker_config_file}..." >> "/var/log/${app_name}.log"
+sudo echo '{"credsStore":"ecr-login"}' > "${docker_config_dir}/config.json"
 
 echo "Install ECR Credential Helper" >> "/var/log/${app_name}.log"
 # 1. Скачиваем и устанавливаем ECR Credential Helper, если его нет
 if [ ! -f "${ecr_helper_path}" ]; then
     echo "ECR credential helper not found. Downloading..."
-    curl -L "https://github.com/awslabs/amazon-ecr-credential-helper/releases/download/v${helper_version}/docker-credential-ecr-login-linux-amd64-v${helper_version}" -o "${ecr_helper_path}"
+    sudo curl -Lo "${ecr_helper_path}" "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/${helper_version}/linux-amd64/docker-credential-ecr-login"
     if [ $? -ne 0 ]; then
         echo "Error: Failed to download ECR credential helper. Exiting."
         exit 1
     fi
-    chmod +x "${ecr_helper_path}" # Делаем исполняемым
+    sudo chmod +x "${ecr_helper_path}" # Делаем исполняемым
     echo "ECR credential helper downloaded and installed to ${ecr_helper_path}."
 else
     echo "ECR credential helper already exists at ${ecr_helper_path}."
@@ -72,20 +77,21 @@ fi
 echo "Configuring ECR Credential Helper" >> "/var/log/${app_name}.log"
 
 # 2. Настраиваем Docker config.json для использования ECR Credential Helper
-# Создаем или модифицируем config.json, чтобы Docker использовал ecr-login для ECR
-echo "Configuring Docker to use ECR credential helper in ${docker_config_file}..."
+
 # Используем jq для безопасного добавления/изменения ключей
 # .credHelpers."public.ecr.aws" - для публичного ECR
 # .credHelpers."*.dkr.ecr.aws" - для всех регионов приватного ECR
-jq_command='.credHelpers."public.ecr.aws" = "ecr-login" | .credHelpers."*.dkr.ecr.aws" = "ecr-login"'
+#jq_command='.credHelpers."public.ecr.aws" = "ecr-login" | .credHelpers."*.dkr.ecr.aws" = "ecr-login"'
 
 # Проверяем, существует ли config.json
-if [ -f "${docker_config_file}" ]; then
-    jq "$jq_command" "${docker_config_file}" > "${docker_config_file}.tmp" && mv "${docker_config_file}.tmp" "${docker_config_file}"
-else
-    # Создаем новый config.json
-    echo "{}" | jq "$jq_command" > "${docker_config_file}"
-fi
+#if [ -f "${docker_config_file}" ]; then
+#    jq "$jq_command" "${docker_config_file}" > "${docker_config_file}.tmp" && mv "${docker_config_file}.tmp" "${docker_config_file}"
+#else
+#    # Создаем новый config.json
+#    echo "{}" | jq "$jq_command" > "${docker_config_file}"
+#fi
+
+aws ecr get-login-password | docker login --username AWS --password-stdin "${aws_account}.dkr.ecr.${aws_region}.amazonaws.com"
 
 # Устанавливаем безопасные права на файл
 chmod 600 "${docker_config_file}"
