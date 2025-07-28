@@ -1,6 +1,9 @@
 services:
   app:
-    image: $REMOTE_IMAGE$PROJECT:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: $PROJECT:latest
     container_name: $PROJECT
     working_dir: /app
     volumes:
