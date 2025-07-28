@@ -53,6 +53,7 @@ locals {
     tgbot_proxy_port     = var.tgbot_proxy_port
     tgbot_proxy_username = var.tgbot_proxy_username
     tgbot_proxy_password = var.tgbot_proxy_password
+    remote_image         = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
   })
   hook_data = templatefile("${path.module}/templates/post-receive.tpl", {
     app_name = var.app_name

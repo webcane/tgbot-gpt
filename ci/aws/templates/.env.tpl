@@ -7,3 +7,4 @@ TGBOT_PROXY_HOSTNAME=${tgbot_proxy_hostname}
 TGBOT_PROXY_PORT=${tgbot_proxy_port}
 TGBOT_PROXY_USERNAME=${tgbot_proxy_username}
 TGBOT_PROXY_PASSWORD=${tgbot_proxy_password}
+REMOTE_IMAGE=${remote_image}

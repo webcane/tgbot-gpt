@@ -29,8 +29,11 @@ newgrp docker
 
 # add .env data
 echo "Create .env file" >> "/var/log/${app_name}.log"
-touch /home/ubuntu/${app_name}.www/.env
-sudo chown -R ubuntu:ubuntu /home/ubuntu/${app_name}.www/.env
-echo ${env_data} > /home/ubuntu/${app_name}.www/.env
+touch "/home/ubuntu/${app_name}.www/.env"
+sudo chown -R ubuntu:ubuntu "/home/ubuntu/${app_name}.www/.env"
+echo "${env_data}" > "/home/ubuntu/${app_name}.www/.env"
+
+# make deploy.sh executable
+chmod +x "/home/ubuntu/${app_name}.www/deploy.sh"
 
 echo "User-data script finished." >> "/var/log/${app_name}.log"

@@ -10,6 +10,11 @@ variable "aws_region" {
   default     = "eu-central-1"
 }
 
+variable "aws_account" {
+  description = "AWS account"
+  type        = string
+}
+
 variable "key_name" {
   description = "SSH key name"
   type        = string

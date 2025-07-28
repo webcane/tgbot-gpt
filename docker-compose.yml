@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tgbot-gpt:latest
-    container_name: tgbot-gpt
+    image: $REMOTE_IMAGE$PROJECT:latest
+    container_name: $PROJECT
     working_dir: /app
     volumes:
       - voice:/app/src/main/resources/voice
