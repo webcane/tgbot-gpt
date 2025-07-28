@@ -7,6 +7,8 @@ set +a
 
 # --- 1. Определение переменных ---
 APP_DIR="/home/ubuntu/$PROJECT.www"
+AWS_REGION=${AWS_REGION:-eu-central-1} # Установите дефолт или убедитесь, что переменная приходит
+AWS_ACCOUNT=${AWS_ACCOUNT:-$(aws sts get-caller-identity --query Account --output text --region "$AWS_REGION")} # Автоматически получить ID аккаунта
 
 echo "--- $(date) ---"
 echo "Starting deployment..."

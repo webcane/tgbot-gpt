@@ -287,3 +287,10 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_policy_attachment" {
 }
 
 
+resource "aws_iam_role_policy_attachment" "ec2_ecr_policy_attachment" {
+  role       = module.tgbot-ec2.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
+
+
+
