@@ -45,8 +45,8 @@ sudo ./aws/install
 /usr/local/bin/aws --version
 
 # install jq
-#echo "Install jq" >> "/var/log/${app_name}.log"
-#sudo apt install -y jq
+echo "Install jq" >> "/var/log/${app_name}.log"
+sudo apt install -y jq
 
 # Install and configure ECR Credential Helper
 
@@ -56,8 +56,7 @@ echo "Create ${docker_config_file}..." >> "/var/log/${app_name}.log"
 mkdir -p "${docker_config_dir}"
 chmod 700 "${docker_config_dir}" # Устанавливаем безопасные права
 
-echo "Configuring Docker to use ECR credential helper in ${docker_config_file}..." >> "/var/log/${app_name}.log"
-sudo echo '{"credsStore":"ecr-login"}' > "${docker_config_dir}/config.json"
+
 
 echo "Install ECR Credential Helper" >> "/var/log/${app_name}.log"
 # 1. Скачиваем и устанавливаем ECR Credential Helper, если его нет
@@ -77,24 +76,28 @@ fi
 echo "Configuring ECR Credential Helper" >> "/var/log/${app_name}.log"
 
 # 2. Настраиваем Docker config.json для использования ECR Credential Helper
+echo "Configuring Docker to use ECR credential helper in ${docker_config_file}..." >> "/var/log/${app_name}.log"
+#sudo echo '{"credsStore":"ecr-login"}' > "${docker_config_dir}/config.json"
 
 # Используем jq для безопасного добавления/изменения ключей
 # .credHelpers."public.ecr.aws" - для публичного ECR
 # .credHelpers."*.dkr.ecr.aws" - для всех регионов приватного ECR
-#jq_command='.credHelpers."public.ecr.aws" = "ecr-login" | .credHelpers."*.dkr.ecr.aws" = "ecr-login"'
+jq_command='.credHelpers."public.ecr.aws" = "ecr-login" | .credHelpers."*.dkr.ecr.aws" = "ecr-login"'
 
 # Проверяем, существует ли config.json
-#if [ -f "${docker_config_file}" ]; then
-#    jq "$jq_command" "${docker_config_file}" > "${docker_config_file}.tmp" && mv "${docker_config_file}.tmp" "${docker_config_file}"
-#else
-#    # Создаем новый config.json
-#    echo "{}" | jq "$jq_command" > "${docker_config_file}"
-#fi
+if [ -f "${docker_config_file}" ]; then
+    jq "$jq_command" "${docker_config_file}" > "${docker_config_file}.tmp" && mv "${docker_config_file}.tmp" "${docker_config_file}"
+else
+    # Создаем новый config.json
+    echo "{}" | jq "$jq_command" > "${docker_config_file}"
+fi
 
+# login to ECR to store auth
 aws ecr get-login-password | docker login --username AWS --password-stdin "${aws_account}.dkr.ecr.${aws_region}.amazonaws.com"
 
 # Устанавливаем безопасные права на файл
 chmod 600 "${docker_config_file}"
+
 echo "Docker config.json updated. Credentials will not be stored unencrypted." >> "/var/log/${app_name}.log"
 echo "ECR setup complete. Docker will now use IAM Role for ECR authentication." >> "/var/log/${app_name}.log"
 
