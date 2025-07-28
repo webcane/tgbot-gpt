@@ -1,6 +1,7 @@
 #!/bin/bash
 
-APP_DIR="${APP_DIR:-/home/ubuntu/app}"
+#APP_DIR="${APP_DIR:-/home/ubuntu/app}"
+APP_DIR="$(pwd)"
 
 echo "--- $(date) ---"
 echo "Starting deployment..."
