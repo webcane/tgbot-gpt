@@ -18,7 +18,7 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
 3. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install#deb) to use Google Gimini model
 4. Authenticate by running following commands
    ```bash
-   gcloud auth application-default login <ACCOUNT>
+   gcloud auth application-default login
    ```
 
 ## Local setup

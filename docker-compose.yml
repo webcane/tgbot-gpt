@@ -6,9 +6,12 @@ services:
     volumes:
       - voice:/app/src/main/resources/voice
       - tmp_data:/tmp
+      - ~/google-credentials.json:/app/google-credentials.json
 #    tmpfs: /tmp
     env_file:
       - .env
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"

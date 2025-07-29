@@ -76,7 +76,6 @@ mkdir -p "${docker_config_dir}"
 chmod 700 "${docker_config_dir}" # Устанавливаем безопасные права
 
 
-
 echo "Install ECR Credential Helper" >> "/var/log/${app_name}.log"
 # 1. Скачиваем и устанавливаем ECR Credential Helper, если его нет
 if [ ! -f "${ecr_helper_path}" ]; then
@@ -119,5 +118,24 @@ chmod 600 "${docker_config_file}"
 
 echo "Docker config.json updated. Credentials will not be stored unencrypted." >> "/var/log/${app_name}.log"
 echo "ECR setup complete. Docker will now use IAM Role for ECR authentication." >> "/var/log/${app_name}.log"
+
+echo "Creating google credentials file" >> "/var/log/${app_name}.log"
+CREDENTIALS_FILE="~/google-credentials.json"
+SSM_PARAMETER_NAME="/${app_name}/google_credentials_json"
+
+echo "Retrieving Google credentials from SSM Parameter Store..." >> "/var/log/${app_name}.log"
+aws ssm get-parameter --name "$SSM_PARAMETER_NAME" --with-decryption --query Parameter.Value --output text > "$CREDENTIALS_FILE"
+
+if [ $? -ne 0 ]; then
+    echo "Failed to retrieve credentials from SSM. Check IAM permissions and parameter name."
+    exit 1
+fi
+chmod 600 "$CREDENTIALS_FILE"
+echo "Google credentials saved to $CREDENTIALS_FILE" >> "/var/log/${app_name}.log"
+
+# Настройте GOOGLE_APPLICATION_CREDENTIALS для вашего приложения
+# echo "export GOOGLE_APPLICATION_CREDENTIALS=$CREDENTIALS_FILE" >> /etc/profile.d/google_credentials.sh
+# chmod +x /etc/profile.d/google_credentials.sh
+# echo "GOOGLE_APPLICATION_CREDENTIALS environment variable configured."
 
 echo "User-data script finished." >> "/var/log/${app_name}.log"

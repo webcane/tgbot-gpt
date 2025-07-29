@@ -11,6 +11,9 @@ provider "aws" {
   region = "eu-central-1"
 }
 
+#data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 # default vpc
 data "aws_vpc" "default" {
   default = true
@@ -300,10 +303,34 @@ resource "aws_iam_role_policy_attachment" "ec2_ssm_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-
 resource "aws_iam_role_policy_attachment" "ec2_ecr_policy_attachment" {
   role       = module.tgbot-ec2.iam_role_name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
+
+# IAM Policy для чтения параметра SSM
+resource "aws_iam_policy" "kms_policy" {
+  name        = "ssm-google-credentials-decrypt-policy"
+  description = "Allows EC2 to decrypt Google credentials from SSM Parameter Store"
+  policy      = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          # Требуется, если ваш SecureString зашифрован KMS ключом (по умолчанию это AWS managed key)
+          "kms:Decrypt"
+        ],
+        # Можно ограничить конкретным KMS ключом, если используете свой
+        Resource = "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_kms_policy_attachment" {
+  role       = module.tgbot-ec2.iam_role_name
+  policy_arn = aws_iam_policy.kms_policy.arn
 }
 
 
