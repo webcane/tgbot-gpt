@@ -8,7 +8,8 @@ on:
   pull_request:
     branches:
       - master
-  workflow_dispatch: # Позволяет запускать workflow вручную из UI GitHub Actions
+  # Allows manually triggering the workflow from GitHub Actions UI
+  workflow_dispatch:
 env:
   ECR_REPOSITORY: ${{ github.event.repository.name }}
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -20,8 +21,8 @@ jobs:
     env:
       JAVA_VERSION: '21'
     permissions:
-      id-token: write # Это абсолютно необходимо для OIDC!
-      contents: read  # access to check out code and install dependencies
+      id-token: write # This is absolutely necessary for OIDC!
+      contents: read  # Access to check out code and install dependencies
     steps:
 
       - name: Checkout repository
@@ -45,32 +46,35 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew # Делаем gradlew исполняемым
+        run: chmod +x ./gradlew # Make gradlew executable
 
       - name: Download dependencies by Gradle
         run: ./gradlew dependencies --no-daemon # for caching
 
       - name: Build Layered Spring Boot app with Gradle
-        run: ./gradlew bootJar --no-daemon # Собираем слоеный JAR
+        run: ./gradlew bootJar --no-daemon # Build layered JAR
 
       - name: Configure AWS credentials (using OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # Здесь указывается ARN IAM роли, которую GitHub Actions будет пытаться принять
-          # Используйте ARN, который вы получили из `terraform output github_actions_iam_role_arn`
+          # Specify the ARN of the IAM role that GitHub Actions will attempt to assume
+          # Use the ARN you obtained from `terraform output github_actions_to_ecr_role_arn`
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.ECR_REPOSITORY }}-github-actions-ecr-role
           aws-region: ${{ env.AWS_REGION }}
-          # Дополнительно: можно указать duration-seconds, role-session-name и т.д.
-          role-session-name: GitHubActionsSession # Опционально, для лучшего логирования в CloudTrail
+          # Optionally: you can specify role-duration-seconds, role-session-name, etc.
+          # Optional, for better logging in CloudTrail
+          role-session-name: GitHubActionsSession
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2 # Авторизуемся в ECR
-        # Output этого шага содержит токен и ECR URI
+        # Authenticate with ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        # The output of this step contains the token and ECR URI
 
       - name: Build and push Docker image to ECR
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} # Получаем URI реестра из предыдущего шага
+          # Get the registry URI from the previous step
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           SHA_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
           LATEST_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest"
