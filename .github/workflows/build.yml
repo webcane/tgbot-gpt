@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - github-build-ecr
+      - gemini-2
   pull_request:
     branches:
       - master
