@@ -79,7 +79,7 @@ jobs:
           SHA_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
           LATEST_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest"
           echo $SHA_IMAGE_URI
-          docker build --build-arg JAR_FILE_NAME='${{ env.ECR_REPOSITORY }}.jar' -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
+          docker build -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
           docker push $SHA_IMAGE_URI
           docker push $LATEST_IMAGE_URI
 
