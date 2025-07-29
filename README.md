@@ -6,8 +6,20 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
 
 1. Get your AI API key from [OpenAI API](https://openai.com/api)
 2. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
-3. Register AWS account
-4. Setup proxy (Optional)
+3. Get your [Google API key](#google-api-key)
+4. Register AWS account
+5. Setup proxy (Optional)
+
+
+## Google API key
+
+1. Create Google Cloud Platform project
+2. Define API key to call Generative Language API only
+3. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install#deb) to use Google Gimini model
+4. Authenticate by running following commands
+   ```bash
+   gcloud auth application-default login <ACCOUNT>
+   ```
 
 ## Local setup
 
@@ -17,7 +29,11 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
     SERVER_PORT=8080
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
+    # Open AI
     OPENAI_API_KEY=
+    # Gemini
+    GOOGLE_CLOUD_PROJECT_ID=
+    GOOGLE_CLOUD_REGION=europe-west1
     ```
 2. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
@@ -28,7 +44,7 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
     ```
 3. build an image
     ```bash
-    docker build -t tgbot-gpt:latest . 
+    docker build -t "${PROJECT,,}:latest" . 
     ```
 4. start the bot
     ```bash

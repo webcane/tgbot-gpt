@@ -62,3 +62,9 @@ variable "github_environment_name" {
   type        = string
   default     = "aws"
 }
+
+variable "google_cloud_project_id" {
+}
+
+variable "google_cloud_region" {
+}

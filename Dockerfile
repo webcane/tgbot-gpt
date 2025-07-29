@@ -2,7 +2,7 @@
 FROM eclipse-temurin:21-jdk-jammy AS build
 
 # Объявляем build argument для имени JAR-файла
-ARG JAR_FILE_NAME=app.jar
+ARG JAR_FILE_NAME=${JAR_FILE_NAME:-app.jar}
 
 # Устанавливаем Gradle, если вы собираете проект внутри контейнера Dockerfile
 # Если вы предпочитаете собирать проект на хосте, этот блок можно убрать,

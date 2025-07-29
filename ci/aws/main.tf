@@ -46,36 +46,39 @@ locals {
   registry_prefix = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
 
   env_data = templatefile("${path.module}/templates/.env.tpl", {
-    project              = var.app_name
-    server_port          = var.server_port
-    openai_api_key       = var.openai_api_key
-    tgbot_token          = var.tgbot_token
-    tgbot_voice_path     = var.tgbot_voice_path
-    tgbot_proxy_hostname = var.tgbot_proxy_hostname
-    tgbot_proxy_port     = var.tgbot_proxy_port
-    tgbot_proxy_username = var.tgbot_proxy_username
-    tgbot_proxy_password = var.tgbot_proxy_password
-    registry_prefix      = local.registry_prefix
+    project                 = var.app_name
+    server_port             = var.server_port
+    openai_api_key          = var.openai_api_key
+    google_cloud_project_id = var.google_cloud_project_id
+    google_cloud_region     = var.google_cloud_region
+    tgbot_token             = var.tgbot_token
+    tgbot_voice_path        = var.tgbot_voice_path
+    tgbot_proxy_hostname    = var.tgbot_proxy_hostname
+    tgbot_proxy_port        = var.tgbot_proxy_port
+    tgbot_proxy_username    = var.tgbot_proxy_username
+    tgbot_proxy_password    = var.tgbot_proxy_password
+    registry_prefix         = local.registry_prefix
   })
   hook_data = templatefile("${path.module}/templates/post-receive.tpl", {
     app_name = var.app_name
   })
   cloud_init_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
-    arch               = "amd64"
-    app_name           = var.app_name
-    codename           = "noble"
-    email              = var.alert_email
-    hook_data          = local.hook_data
-    env_data           = local.env_data
+    arch                    = "amd64"
+    app_name                = var.app_name
+    codename                = "noble"
+    email                   = var.alert_email
+    hook_data               = local.hook_data
+    env_data                = local.env_data
     # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
     # предполагаем, что скрипт выполняется от имени root.
-    docker_config_dir  = "~/.docker"
-    docker_config_file = "~/.docker/config.json"
-    ecr_helper_path    = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
+    docker_config_dir       = "~/.docker"
+    docker_config_file      = "~/.docker/config.json"
+    ecr_helper_path         = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
     # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
     # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
-    helper_version     = "0.10.1"
-    registry_prefix    = local.registry_prefix
+    helper_version          = "0.10.1"
+    registry_prefix         = local.registry_prefix
+    google_cloud_project_id = var.google_cloud_project_id
   })
   ecr_repository_name    = var.app_name
   github_repository_name = var.app_name
