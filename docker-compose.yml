@@ -1,6 +1,6 @@
 services:
   app:
-    image: $REMOTE_IMAGE$PROJECT:latest
+    image: ${REGISTRY_PREFIX}${PROJECT}:latest
     container_name: $PROJECT
     working_dir: /app
     volumes:

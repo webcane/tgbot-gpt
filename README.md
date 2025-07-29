@@ -1,51 +1,90 @@
 # tgbot-gpt
 This is a Telegram bot designed to serve as an GPT assistant. 
-It was created using Java 17, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with the [GPT-4o](https://platform.openai.com/docs/models#gpt-4o) large language model from [OpenAI](https://platform.openai.com/docs/overview).
+It was created using Java 21, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with the [GPT-4o](https://platform.openai.com/docs/models#gpt-4o) large language model from [OpenAI](https://platform.openai.com/docs/overview).
 
 # Setup
+
 1. Get your AI API key from [OpenAI API](https://openai.com/api)
 2. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
-3. Create Google Cloud Platform project
-4. Define API key to call Generative Language API only
-5. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install#deb) to use Google Gimini model
-6. Authenticate by running following commands
-   ```bash
-   gcloud auth application-default login <ACCOUNT>
-   ```
-7. Clone the repo to the server
-    ```bash
-    git clone https://github.com/webcane/tgbot-gpt.git
-    ```
-8. specify required environmental variables in `.env`
+3. Register AWS account
+4. Setup proxy (Optional)
+
+## Local setup
+
+1. specify required environmental variables in `.env`
     ```dotenv
-    PROJECT=
-    SERVER_PORT=
+    PROJECT=<bot_name>
+    SERVER_PORT=8080
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
-    # Open AI
     OPENAI_API_KEY=
-    # Gemini
-    GOOGLE_CLOUD_PROJECT_ID=
-    GOOGLE_CLOUD_REGION=europe-west1
     ```
-9. To run the telegram bot over proxy define following env vars additionally:
+2. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
     TGBOT_PROXY_HOSTNAME=
     TGBOT_PROXY_PORT=42567
     TGBOT_PROXY_USERNAME=
     TGBOT_PROXY_PASSWORD=
     ```
-10. start the bot
+3. build an image
+    ```bash
+    docker build -t tgbot-gpt:latest . 
+    ```
+4. start the bot
     ```bash
     docker compose up --detach
     ```
+   
+## AWS setup
+Use terraform scripts to provision required aws objects.
+Terraform will do following:
+- create ec2 and ecr using terraform modules
+- define free_tier alerts
+- github actions will be allowed to push docker images into ECR
+- it will be allowed to redeploy the bot using AWS SSM command
+- setup necessary software (docker, aws-cli, etc.)
+- creates `.env` file
+
+1. Init terraform script
+    ```bash
+    cd ./ci/aws
+    terraform init -reconfigure \
+        -backend-config="bucket=tgbot-gpt-tf" \
+        -backend-config="region=eu-central-1" \
+        -backend-config="key=tgbot-gpt.tfstate"
+    ```
+2. Provide terraform variables over `terraform.tfvars` or inline
+3. Deploy dockerized application on EC2
+
+    run terraform scripts
+    ```bash
+    terraform plan -out tgbot-gpt.tfplan
+    terraform apply -input=false tgbot-gpt.tfplan
+    ```
+4. Keep `aws_ec2_id` terraform output value.
+5. Start/restart the application
+   
+   Start docker container manually by SSH or run deploy.sh script by aws command
+    ```bash
+    aws ssm send-command \
+	  --document-name "AWS-RunShellScript" \
+	  --parameters 'commands=["cd /home/ubuntu/tgbot-gpt.www", "./deploy.sh"]' \
+	  --instance-ids "<ec2-instance-id>" \
+	  --comment "Deploy tgbot-gpt" \
+	  --cloud-watch-output-config "CloudWatchLogGroupName=/aws/ssm/tgbot-gpt-deploy-logs,CloudWatchOutputEnabled=true" \
+	  --region "eu-central-1"
+    ```
 
 # Development setup
-TBD
+
+## docker compose
+## aws cli
+### configure aws credentials
+## terraform 
 
 # Notable features
-The EC2 instance is configured with only a root volume. Each time Terraform provisions the instance, 
-all data is lost and the environment is reinitialized using the user_data cloud-init script.
+- The EC2 instance is configured with only a root volume. Each time Terraform provisions the instance, 
+all data is lost and the environment is reinitialized using the `user_data` cloud-init script.
 
 # Message limits
 

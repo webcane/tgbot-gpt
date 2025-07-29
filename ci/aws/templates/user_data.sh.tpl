@@ -93,7 +93,7 @@ else
 fi
 
 # login to ECR to store auth
-aws ecr get-login-password | docker login --username AWS --password-stdin "${aws_account}.dkr.ecr.${aws_region}.amazonaws.com"
+aws ecr get-login-password | docker login --username AWS --password-stdin "${registry_prefix}"
 
 # Устанавливаем безопасные права на файл
 chmod 600 "${docker_config_file}"

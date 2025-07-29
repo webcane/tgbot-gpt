@@ -43,6 +43,8 @@ resource "aws_eip_association" "this" {
 }
 
 locals {
+  registry_prefix = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
+
   env_data = templatefile("${path.module}/templates/.env.tpl", {
     project              = var.app_name
     server_port          = var.server_port
@@ -53,7 +55,7 @@ locals {
     tgbot_proxy_port     = var.tgbot_proxy_port
     tgbot_proxy_username = var.tgbot_proxy_username
     tgbot_proxy_password = var.tgbot_proxy_password
-    remote_image         = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
+    registry_prefix      = local.registry_prefix
   })
   hook_data = templatefile("${path.module}/templates/post-receive.tpl", {
     app_name = var.app_name
@@ -73,8 +75,7 @@ locals {
     # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
     # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
     helper_version     = "0.10.1"
-    aws_region         = var.aws_region
-    aws_account        = var.aws_account
+    registry_prefix    = local.registry_prefix
   })
   ecr_repository_name    = var.app_name
   github_repository_name = var.app_name
