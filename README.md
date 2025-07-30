@@ -1,11 +1,13 @@
 # tgbot-gpt
 This is a Telegram bot designed to serve as an GPT assistant. 
-It was created using Java 21, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with the [GPT-4o](https://platform.openai.com/docs/models#gpt-4o) large language model from [OpenAI](https://platform.openai.com/docs/overview).
+It was created using Java 21, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with 
+ - [gpt-4.1-mini](https://platform.openai.com/docs/models/gpt-4.1-mini) large language model from [OpenAI](https://platform.openai.com/docs/overview)
+ - [gemini-2.0-flash](https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) from [Google AI](https://ai.google/)
 
 # Setup
 
-1. Get your AI API key from [OpenAI API](https://openai.com/api)
-2. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
+1. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
+2. Get your AI API key from [OpenAI API](https://openai.com/api)
 3. Get your [Google API key](#google-api-key)
 4. Register AWS account
 5. Setup proxy (Optional)
