@@ -4,6 +4,10 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
  - [gpt-4.1-mini](https://platform.openai.com/docs/models/gpt-4.1-mini) large language model from [OpenAI](https://platform.openai.com/docs/overview)
  - [gemini-2.0-flash](https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) from [Google AI](https://ai.google/)
 
+# Github actions build
+![Gradle Build](https://github.com/webcane/tgbot-gpt/workflows/Build%20and%20Push%20to%20ECR/badge.svg)
+
+
 # Setup
 
 1. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
