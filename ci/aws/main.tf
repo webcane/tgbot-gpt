@@ -74,8 +74,8 @@ locals {
     env_data                = local.env_data
     # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
     # предполагаем, что скрипт выполняется от имени root.
-    docker_config_dir       = "~/.docker"
-    docker_config_file      = "~/.docker/config.json"
+    docker_config_dir       = "/home/ubuntu/.docker"
+    docker_config_file      = "/home/ubuntu/.docker/config.json"
     ecr_helper_path         = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
     # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
     # see https://github.com/awslabs/amazon-ecr-credential-helper/releases

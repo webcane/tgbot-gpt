@@ -119,13 +119,13 @@ else
 fi
 
 # login to ECR to store auth
-aws ecr get-login-password | docker login --username AWS --password-stdin "${registry_prefix}"
+# echo "login to ECR" >> " $LOG_FILE"
+# aws ecr get-login-password | docker login --username AWS --password-stdin "${registry_prefix}"
 
 # Устанавливаем безопасные права на файл
 chmod 600 "${docker_config_file}"
-
-echo "Docker config.json updated. Credentials will not be stored unencrypted." >> " $LOG_FILE"
-echo "ECR setup complete. Docker will now use IAM Role for ECR authentication." >> " $LOG_FILE"
+echo "Docker config.json updated. Credentials will not be stored unencrypted. \
+      ECR setup complete. Docker will now use IAM Role for ECR authentication." >> " $LOG_FILE"
 
 echo "Creating google credentials file" >> " $LOG_FILE"
 
