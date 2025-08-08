@@ -88,6 +88,7 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
             }
             catch (Exception ex) {
                 log.error("Exception occurred", ex);
+                sendErrorReply(ex, userMessage);
             }
         }
 
