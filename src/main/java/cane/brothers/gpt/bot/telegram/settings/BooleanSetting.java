@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 /**
  * Enum representing settings for boolean values.
  * Each setting has a default value of type Boolean.
- * Example: CALLBACK_REPLY can be true or false.
+ * Example: REPLY can be true or false.
  */
 @Getter
 @RequiredArgsConstructor
 enum BooleanSetting implements CommandSetting<Boolean> {
-    CALLBACK_REPLY(Boolean.TRUE),
-    CALLBACK_MARKUP(Boolean.TRUE);
+    REPLY(Boolean.TRUE),
+    MARKUP(Boolean.TRUE);
 
     private final Boolean defaultValue;
 

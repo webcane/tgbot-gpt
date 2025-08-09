@@ -15,17 +15,17 @@ class TgBotInMemorySettings implements ChatSettings {
     // query methods
     @Override
     public Boolean getUseMarkup(Long chatId) {
-        return getChatSettings(chatId, BooleanSetting.CALLBACK_MARKUP);
+        return getChatSettings(chatId, BooleanSetting.MARKUP);
     }
 
     @Override
     public Boolean getUseReply(Long chatId) {
-        return getChatSettings(chatId, BooleanSetting.CALLBACK_REPLY);
+        return getChatSettings(chatId, BooleanSetting.REPLY);
     }
 
     @Override
     public GptModel getGptModel(Long chatId) {
-        return getChatSettings(chatId, GptModelSetting.CALLBACK_MODEL);
+        return getChatSettings(chatId, GptModelSetting.MODEL);
     }
 
     @SuppressWarnings("unchecked")

@@ -32,11 +32,11 @@ class ReplyCallbackModelGeminiCommand implements ChatCommand<CallbackQuery>, Uti
         var chatId = data.getMessage().getChatId();
         Integer messageId = data.getMessage().getMessageId();
 
-        botSettings.setChatSetting(chatId, GptModelSetting.CALLBACK_MODEL, model);
+        botSettings.setChatSetting(chatId, GptModelSetting.MODEL, model);
         log.debug("Chat: %d. Change settings. set GPT Model=%s".formatted(chatId, model));
 
         if (messageId != null && botSettings.getUseReply(chatId)) {
-            sendQuickReply(chatId, messageId, GptModelSetting.CALLBACK_MODEL.getMessage(model));
+            sendQuickReply(chatId, messageId, GptModelSetting.MODEL.getMessage(model));
         }
 
         // hide callback menu

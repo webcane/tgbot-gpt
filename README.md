@@ -112,7 +112,9 @@ all data is lost and the environment is reinitialized using the `user_data` clou
 
 # Telegram commands
 ```
-settings - bot settings
+reply - work in progress reply
+markup - format gpt response
+models - choose preferred ai model
 ```
 
 # Contributing
