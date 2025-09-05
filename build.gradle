@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.4'
+	id 'org.springframework.boot' version '3.5.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -55,8 +55,8 @@ dependencies {
 	// escape chars
 	implementation "org.apache.commons:commons-text:1.14.0"
 	// Lombok
-	compileOnly 'org.projectlombok:lombok:1.18.38'
-	annotationProcessor 'org.projectlombok:lombok:1.18.38'
+	compileOnly 'org.projectlombok:lombok:1.18.40'
+	annotationProcessor 'org.projectlombok:lombok:1.18.40'
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// Lombok for testing
