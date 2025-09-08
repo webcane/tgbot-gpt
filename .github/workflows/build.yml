@@ -55,7 +55,7 @@ jobs:
         run: ./gradlew bootJar --no-daemon # Build layered JAR
 
       - name: Configure AWS credentials (using OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           # Specify the ARN of the IAM role that GitHub Actions will attempt to assume
           # Use the ARN you obtained from `terraform output github_actions_to_ecr_role_arn`
