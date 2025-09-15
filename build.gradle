@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.4'
+	id 'org.springframework.boot' version '3.5.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -31,7 +31,7 @@ repositories {
 
 dependencyManagement {
 	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:1.0.1"
+		mavenBom "org.springframework.ai:spring-ai-bom:1.0.2"
 		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.0.0'
 	}
 }
@@ -46,17 +46,17 @@ dependencies {
 	// gemini - vertexai
 	implementation 'org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini'
 	// telegram bot libs
-	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.0.0'
-	implementation 'org.telegram:telegrambots-client:9.0.0'
-	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.0.0'
+	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.1.0'
+	implementation 'org.telegram:telegrambots-client:9.1.0'
+	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.1.0'
 //	implementation 'org.telegram:telegrambots-abilities:9.0.0'
 	// slf4j implementation
 	implementation 'ch.qos.logback:logback-classic:1.5.18'
 	// escape chars
 	implementation "org.apache.commons:commons-text:1.14.0"
 	// Lombok
-	compileOnly 'org.projectlombok:lombok:1.18.38'
-	annotationProcessor 'org.projectlombok:lombok:1.18.38'
+	compileOnly 'org.projectlombok:lombok:1.18.40'
+	annotationProcessor 'org.projectlombok:lombok:1.18.40'
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// Lombok for testing
