@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Validated
 @ConfigurationProperties(prefix = "tgbot")
@@ -11,7 +12,8 @@ public record AppProperties(
         @NotNull(message = "The property 'tgbot.token' is required")
         String token, HttpProxy proxy,
         String voicePath,
-        String infoUrl) {
+        String infoUrl,
+        List<String> allowedUserNames) {
 
     public record HttpProxy(
             @NotNull(message = "The property 'tgbot.proxy.hostname' is required")

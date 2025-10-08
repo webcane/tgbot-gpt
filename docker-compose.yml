@@ -15,13 +15,16 @@ services:
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
-    command:
-      - java
-      - -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME
-      - -Dhttp.proxyPort=$TGBOT_PROXY_PORT
-      - -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME
-      - -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD
-      - org.springframework.boot.loader.launch.JarLauncher
+    command: >
+      sh -c "
+      chown -R spring:spring /app/src/main/resources/voice &&
+      java
+      -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME
+      -Dhttp.proxyPort=$TGBOT_PROXY_PORT
+      -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME
+      -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD
+      org.springframework.boot.loader.launch.JarLauncher
+      "
     restart: always
     networks:
       app-network: { }

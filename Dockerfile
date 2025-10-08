@@ -4,6 +4,13 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 # Объявляем build argument для имени JAR-файла
 ARG JAR_FILE_NAME=${JAR_FILE_NAME:-app.jar}
 
+# Define build arguments for user and group
+ARG USER_NAME=${USER_NAME:-spring}
+ARG USER_ID=1000
+ARG GROUP_NAME=${USER_NAME:-spring}
+ARG GROUP_ID=1000
+
+
 # Устанавливаем Gradle, если вы собираете проект внутри контейнера Dockerfile
 # Если вы предпочитаете собирать проект на хосте, этот блок можно убрать,
 # и просто скопировать готовый JAR в финальный образ.
@@ -27,14 +34,14 @@ RUN java -Djarmode=tools -jar build/libs/${JAR_FILE_NAME} extract --layers --lau
 # --- Финальный образ ---
 FROM eclipse-temurin:21-jre-jammy
 
-# Создаем пользователя spring с uid 1000 и group spring
-# Этот шаг помогает с безопасностью, не запуская приложение от root
-RUN groupadd spring --gid 1000 && useradd spring -g spring --uid 1000 \
-    && mkdir /app \
-    && chown spring:spring /app
+# Create the group and user using the build arguments
+RUN groupadd ${GROUP_NAME} --gid ${GROUP_ID} || echo "Group already exists" && \
+    useradd -m --uid ${USER_ID} -g ${GROUP_NAME} ${USER_NAME} || echo "User already exists"
 
-USER spring
 WORKDIR /app
+RUN chown ${USER_NAME}:${GROUP_NAME} /app
+
+USER ${USER_NAME}
 
 # Копируем извлеченные слои в нужные директории в финальном образе
 # Эти слои будут кэшироваться Docker'ом независимо

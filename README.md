@@ -35,6 +35,7 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
     SERVER_PORT=8080
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
+    TGBOT_ALLOWED_USER_NAMES=
     # Open AI
     OPENAI_API_KEY=
     # Gemini

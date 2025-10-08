@@ -122,9 +122,16 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             var filePath = downloadDir.resolve(file.getFilePath());
             log.debug("save voice file to: {}", filePath);
 
-            // Убедитесь, что файл существует
+            // Ensure the directories exist
+            if (!Files.exists(filePath.getParent())) {
+                Files.createDirectories(filePath.getParent());
+                log.info("Created directories: {}", filePath.getParent());
+            }
+
+            // Ensure the file exists
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
+                log.info("Created file: {}", filePath);
             }
 
             // сохраняем файл
@@ -139,9 +146,8 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             log.debug("relative path: {}", fp);
             return new FileSystemResource(filePath);
         } catch (URISyntaxException | IOException ex) {
-            log.error("unable to download file {}", file, ex);
+            throw new RuntimeException("unable to download file %s".formatted(file), ex);
         }
-        return null;
     }
 
     String getGptAnswer(Long chatId, String userMessage) {

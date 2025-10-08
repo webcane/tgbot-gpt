@@ -79,16 +79,11 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
                     command.execute(userMessage);
                 }
             } catch (NonTransientAiException aiEx) {
-                log.error("Can't handle AI message", aiEx);
-                sendErrorReply(aiEx, userMessage);
-            }
-            catch (TelegramApiException tex) {
-                log.error("Can't send message to telegram", tex);
-                sendErrorReply(tex, userMessage);
-            }
-            catch (Exception ex) {
-                log.error("Exception occurred", ex);
-                sendErrorReply(ex, userMessage);
+                sendErrorReply("Can't handle AI message", aiEx, userMessage);
+            } catch (TelegramApiException tex) {
+                sendErrorReply("Can't send message to telegram", tex, userMessage);
+            } catch (Exception ex) {
+                sendErrorReply("Internal error occurred", ex, userMessage);
             }
         }
 
@@ -118,16 +113,29 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
         }
     }
 
-    private void sendErrorReply(Exception tex, Message userMessage) {
-        try {
-            var command = commandFactory.create(ReplyErrorCommand.class);
-            if (command != null) {
-                command.setContext(new ErrorCommandContext(tex.getMessage()));
-                command.execute(userMessage);
+    private void sendErrorReply(String replyErrorMessage, Exception tex, Message userMessage) {
+        log.error(replyErrorMessage, tex);
+        var userName = userMessage.getFrom().getUserName();
+
+        if (isAdminUser(userName)) {
+            // Logic for allowed users
+            try {
+                var command = commandFactory.create(ReplyErrorCommand.class);
+                if (command != null) {
+                    command.setContext(new ErrorCommandContext(tex.getMessage()));
+                    command.execute(userMessage);
+                }
+            } catch (TelegramApiException ex) {
+                log.error("Can't send fallback message to telegram", ex);
             }
-        } catch (TelegramApiException ex) {
-            log.error("Can't send fallback message to telegram", ex);
+        } else {
+            log.info("User {} is not allowed to receive error replies.", userName);
         }
+    }
+
+    private boolean isAdminUser(String userName) {
+        return properties.allowedUserNames() != null && !properties.allowedUserNames().isEmpty()
+                && properties.allowedUserNames().contains(userName);
     }
 
     private boolean isVoiceMessage(Message userMessage) {
