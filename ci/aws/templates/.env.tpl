@@ -5,6 +5,7 @@ GOOGLE_CLOUD_PROJECT_ID=${google_cloud_project_id}
 GOOGLE_CLOUD_REGION=${google_cloud_region}
 TGBOT_TOKEN=${tgbot_token}
 TGBOT_VOICE_PATH=${tgbot_voice_path}
+TGBOT_ALLOWED_USER_NAMES=${tgbot_allowed_user_names}
 TGBOT_PROXY_HOSTNAME=${tgbot_proxy_hostname}
 TGBOT_PROXY_PORT=${tgbot_proxy_port}
 TGBOT_PROXY_USERNAME=${tgbot_proxy_username}

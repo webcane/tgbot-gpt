@@ -35,6 +35,11 @@ variable "tgbot_token" {
 variable "tgbot_voice_path" {
 }
 
+variable "tgbot_allowed_user_names" {
+  description = "List of admin"
+  type        = list(string)
+}
+
 variable "tgbot_proxy_hostname" {
 }
 
