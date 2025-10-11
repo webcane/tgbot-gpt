@@ -73,8 +73,8 @@ echo "Install jq" >> " $LOG_FILE"
 sudo apt install -y jq
 
 # Define Docker config directory. To avoid warning '/root/.docker/',
-DOCKER_CONFIG_DIR = "/home/ubuntu/.docker"
-DOCKER_CONFIG_FILE = "$DOCKER_CONFIG_DIR/config.json"
+DOCKER_CONFIG_DIR="/home/ubuntu/.docker"
+DOCKER_CONFIG_FILE="$DOCKER_CONFIG_DIR/config.json"
 
 # Create .docker directory if missing
 # Create config.json. Docker will use ecr-login to access ECR
@@ -85,10 +85,10 @@ chmod 700 "$DOCKER_CONFIG_DIR"
 
 echo "Install and configure ECR Credential Helper" >> " $LOG_FILE"
 
-ECR_HELPER_PATH = "/usr/local/bin/docker-credential-ecr-login"
+ECR_HELPER_PATH="/usr/local/bin/docker-credential-ecr-login"
 # use specific version for stability. Check latest on GitHub releases
 # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
-HELPER_VERSION = "0.10.1"
+HELPER_VERSION="0.10.1"
 
 # Download and install ECR Credential Helper if missing
 if [ ! -f "$ECR_HELPER_PATH" ]; then
