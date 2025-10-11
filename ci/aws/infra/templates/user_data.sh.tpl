@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/${app_name}.log"
-echo "Starting user-data script execution..." >> "$LOG_FILE"
+echo "Starting user-data script execution" >> "$LOG_FILE"
 
 APP_DIR="/home/ubuntu/${app_name}.www"
 echo "Create working directory $APP_DIR..." >> "$LOG_FILE"
