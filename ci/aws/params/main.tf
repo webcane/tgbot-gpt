@@ -24,21 +24,21 @@ resource "aws_ssm_parameter" "google_credentials_json" {
 }
 
 resource "aws_ssm_parameter" "docker_compose_yml" {
-  name        = "/tgbot-gpt/docker_compose.yml"
+  name        = "/tgbot-gpt/docker_compose_yml"
   description = "Docker Compose file"
   type        = "SecureString"
   value       = file("${path.module}/../../../docker-compose.yml")
 }
 
 resource "aws_ssm_parameter" "deploy_sh" {
-  name        = "/tgbot-gpt/deploy.sh"
+  name        = "/tgbot-gpt/deploy_sh"
   description = "tgbot-gpt deploy script"
   type        = "SecureString"
   value       = file("${path.module}/../../../deploy.sh")
 }
 
 resource "aws_ssm_parameter" "dot_env" {
-  name        = "/tgbot-gpt/.env"
+  name        = "/tgbot-gpt/dot_env"
   description = "tgbot-gpt environment variables file"
   type        = "SecureString"
   value       = file("${path.module}/../../../aws.env")
