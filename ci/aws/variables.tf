@@ -79,3 +79,6 @@ variable "java_opts" {
   type        = string
   default     = "-Xmx512m -Xms256m"
 }
+variable "voice_mount_path" {
+  type = string
+}

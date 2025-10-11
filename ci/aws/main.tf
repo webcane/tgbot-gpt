@@ -64,6 +64,7 @@ locals {
     tgbot_proxy_password     = var.tgbot_proxy_password
     registry_prefix          = local.registry_prefix
     java_opts                = var.java_opts
+    voice_mount_path         = var.voice_mount_path
   })
 
   # generate cloud-init script from template

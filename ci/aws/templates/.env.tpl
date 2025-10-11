@@ -12,3 +12,4 @@ TGBOT_PROXY_USERNAME=${tgbot_proxy_username}
 TGBOT_PROXY_PASSWORD=${tgbot_proxy_password}
 REGISTRY_PREFIX=${registry_prefix}
 JAVA_OPTS=${java_opts}
+VOICE_MOUNT_PATH=${voice_mount_path}
