@@ -12,10 +12,10 @@ SSM_PARAMETER_ENV_FILE="/$APP_NAME/dot_env"
 echo "Create .env file" >> " $LOG_FILE"
 > "$ENV_FILE"
 
-echo "Retrieving .env from SSM Parameter Store..." >> " $LOG_FILE"
+echo "Retrieving .env from SSM Parameter Store..." >> "$LOG_FILE"
 aws ssm get-parameter --name "$SSM_PARAMETER_ENV_FILE" --with-decryption --query Parameter.Value --output text > "$ENV_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve .env from SSM. Check IAM permissions and parameter name."
+    echo "Failed to retrieve .env from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 # file owner is ubuntu
@@ -28,13 +28,13 @@ sudo chmod 600 "$ENV_FILE"
 DOCKER_COMPOSE_FILE="$APP_DIR/docker-compose.yml"
 SSM_PARAMETER_DOCKER_COMPOSE_FILE="/$APP_NAME/docker-compose_yml"
 
-echo "Create docker-compose.yml file" >> " $LOG_FILE"
+echo "Create docker-compose.yml file" >> "$LOG_FILE"
 > "$DOCKER_COMPOSE_FILE"
 
-echo "Retrieving docker-compose.yml from SSM Parameter Store..." >> " $LOG_FILE"
+echo "Retrieving docker-compose.yml from SSM Parameter Store..." >> "$LOG_FILE"
 aws ssm get-parameter --name "$SSM_PARAMETER_DOCKER_COMPOSE_FILE" --with-decryption --query Parameter.Value --output text > "$DOCKER_COMPOSE_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve docker-compose.yml from SSM. Check IAM permissions and parameter name."
+    echo "Failed to retrieve docker-compose.yml from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 # file owner is ubuntu
@@ -42,24 +42,24 @@ sudo chown -R ubuntu:ubuntu "$DOCKER_COMPOSE_FILE"
 
 
 echo "--- $(date) ---"
-echo "Starting deployment..."
+echo "Starting deployment..." >> "$LOG_FILE"
 
-echo "Application directory: $APP_DIR"
-cd "$APP_DIR" || { echo "Error: Cannot change directory to $APP_DIR. Exiting."; exit 1; }
+echo "Application directory: $APP_DIR" >> "$LOG_FILE"
+cd "$APP_DIR" || { echo "Error: Cannot change directory to $APP_DIR. Exiting." >> "$LOG_FILE"; exit 1; }
 
-echo "Stopping existing Docker Compose services..."
+echo "Stopping existing Docker Compose services..." >> "$LOG_FILE"
 sudo -u ubuntu docker compose down -v --remove-orphans || true
 if [ $? -ne 0 ]; then
-    echo "Warning: docker compose down encountered issues, but continuing. Check logs if needed."
+    echo "Warning: docker compose down encountered issues, but continuing. Check logs if needed." >> "$LOG_FILE"
 fi
-echo "Existing services stopped."
+echo "Existing services stopped." >> "$LOG_FILE"
 
-echo "Starting new Docker Compose services..."
+echo "Starting new Docker Compose services..." >> "$LOG_FILE"
 sudo -u ubuntu docker compose up -d --force-recreate
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to start Docker Compose services. Exiting."
+    echo "Error: Failed to start Docker Compose services. Exiting." >> "$LOG_FILE"
     exit 1
 fi
-echo "Application deployed and running."
+echo "Application deployed and running." >> "$LOG_FILE"
 
-echo "Deployment script finished successfully."
+echo "Deployment script finished successfully." >> "$LOG_FILE"

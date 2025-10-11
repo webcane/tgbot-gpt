@@ -92,17 +92,17 @@ HELPER_VERSION="0.10.1"
 
 # Download and install ECR Credential Helper if missing
 if [ ! -f "$ECR_HELPER_PATH" ]; then
-    echo "ECR credential helper not found. Downloading..."
+    echo "ECR credential helper not found. Downloading..." >> "$LOG_FILE"
     sudo curl -Lo "$ECR_HELPER_PATH" "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/$HELPER_VERSION/linux-amd64/docker-credential-ecr-login"
     if [ $? -ne 0 ]; then
-        echo "Error: Failed to download ECR credential helper. Exiting."
+        echo "Error: Failed to download ECR credential helper. Exiting." >> "$LOG_FILE"
         exit 1
     fi
     # make executable
     sudo chmod +x "$ECR_HELPER_PATH"
-    echo "ECR credential helper downloaded and installed to $ECR_HELPER_PATH."
+    echo "ECR credential helper downloaded and installed to $ECR_HELPER_PATH." >> "$LOG_FILE"
 else
-    echo "ECR credential helper already exists at $ECR_HELPER_PATH."
+    echo "ECR credential helper already exists at $ECR_HELPER_PATH." >> "$LOG_FILE"
 fi
 
 echo "Configuring ECR Credential Helper" >> "$LOG_FILE"
@@ -149,7 +149,7 @@ sudo chmod 700 "$CREDENTIALS_DIR"
 echo "Retrieving Google credentials from SSM Parameter Store..." >> "$LOG_FILE"
 aws ssm get-parameter --name "$SSM_PARAMETER_CREDENTIALS_FILE" --with-decryption --query Parameter.Value --output text > "$CREDENTIALS_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve credentials from SSM. Check IAM permissions and parameter name."
+    echo "Failed to retrieve credentials from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 
@@ -172,7 +172,7 @@ touch "$DEPLOY_FILE"
 echo "Retrieving deploy.sh from SSM Parameter Store..." >> "$LOG_FILE"
 aws ssm get-parameter --name "$SSM_PARAMETER_DEPLOY_FILE" --with-decryption --query Parameter.Value --output text > "$DEPLOY_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve deploy.sh from SSM. Check IAM permissions and parameter name."
+    echo "Failed to retrieve deploy.sh from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 # file owner is ubuntu
