@@ -4,11 +4,21 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 # Объявляем build argument для имени JAR-файла
 ARG JAR_FILE_NAME=${JAR_FILE_NAME:-app.jar}
 
+ARG PORT=${SERVER_PORT:-8080}
+
 # Define build arguments for user and group
-ARG USER_NAME=${USER_NAME:-spring}
+ARG USER_NAME=${DOCKER_USER_NAME:-spring}
 ARG USER_ID=1000
 ARG GROUP_NAME=${USER_NAME:-spring}
 ARG GROUP_ID=1000
+
+ENV JAVA_OPTS=${JAVA_OPTS:-"-Xmx512m -Xms256m"}
+
+# Define build arguments for proxy settings
+ENV TGBOT_PROXY_HOSTNAME=${TGBOT_PROXY_HOSTNAME:-}
+ENV TGBOT_PROXY_PORT=${TGBOT_PROXY_PORT:-42567}
+ENV TGBOT_PROXY_USERNAME=${TGBOT_PROXY_USERNAME:-}
+ENV TGBOT_PROXY_PASSWORD=${TGBOT_PROXY_PASSWORD:-}
 
 
 # Устанавливаем Gradle, если вы собираете проект внутри контейнера Dockerfile
@@ -45,13 +55,17 @@ USER ${USER_NAME}
 
 # Копируем извлеченные слои в нужные директории в финальном образе
 # Эти слои будут кэшироваться Docker'ом независимо
-COPY --from=build --chown=spring:spring /app/extracted/dependencies/ ./
-# COPY --from=build --chown=spring:spring /app/extracted/snapshot-dependencies/ ./
-COPY --from=build --chown=spring:spring /app/extracted/spring-boot-loader/ ./
-COPY --from=build --chown=spring:spring /app/extracted/application/ ./
+COPY --from=build --chown=${USER_NAME}:${GROUP_NAME} /app/extracted/dependencies/ ./
+COPY --from=build --chown=${USER_NAME}:${GROUP_NAME} /app/extracted/spring-boot-loader/ ./
+COPY --from=build --chown=${USER_NAME}:${GROUP_NAME} /app/extracted/application/ ./
 
 # Expose the port your Spring Boot app listens on (e.g., 8080)
-EXPOSE 8080 42567
+EXPOSE ${PORT} 42567
 
 # Команда для запуска приложения, использующая встроенный загрузчик Spring Boot
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT exec java $JAVA_OPTS \
+ -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME \
+ -Dhttp.proxyPort=$TGBOT_PROXY_PORT \
+ -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME \
+ -Dhttps.proxyPassword=$TGBOT_PROXY_PASSWORD \
+ org.springframework.boot.loader.launch.JarLauncher

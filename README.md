@@ -52,6 +52,7 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
 3. build an image
     ```bash
     docker build -t "${PROJECT,,}:latest" . 
+    docker build --build-arg PORT=${SERVER_PORT} --build-arg DOCKER_USER_NAME=${DOCKER_USER_NAME} -t "${PROJECT,,}:latest" .
     ```
 4. start the bot
     ```bash

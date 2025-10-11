@@ -7,6 +7,10 @@ echo "Starting user-data script execution..." >> "$LOG_FILE"
 mkdir "/home/ubuntu/${app_name}.www"
 chown -R ubuntu:ubuntu "/home/ubuntu/${app_name}.www"
 
+mkdir "/home/ubuntu/${app_name}.www/src/main/resources/voice"
+chown -R ubuntu:ubuntu "/home/ubuntu/${app_name}.www/src/main/resources/voice"
+chmod -R 770 "/home/ubuntu/${app_name}.www/src/main/resources/voice"
+
 # add Docker's official GPG key
 sudo apt-get update
 sudo apt-get install ca-certificates curl

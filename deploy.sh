@@ -10,7 +10,7 @@ echo "Application directory: $APP_DIR"
 cd "$APP_DIR" || { echo "Error: Cannot change directory to $APP_DIR. Exiting."; exit 1; }
 
 echo "Stopping existing Docker Compose services..."
-sudo -u ubuntu docker compose down --remove-orphans || true
+sudo -u ubuntu docker compose down -v --remove-orphans || true
 if [ $? -ne 0 ]; then
     echo "Warning: docker compose down encountered issues, but continuing. Check logs if needed."
 fi

@@ -48,6 +48,7 @@ resource "aws_eip_association" "this" {
 locals {
   registry_prefix = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
 
+  # generate .env file from template
   env_data = templatefile("${path.module}/templates/.env.tpl", {
     project                  = var.app_name
     server_port              = var.server_port
@@ -64,18 +65,15 @@ locals {
     registry_prefix          = local.registry_prefix
     java_opts                = var.java_opts
   })
-  hook_data = templatefile("${path.module}/templates/post-receive.tpl", {
-    app_name = var.app_name
-  })
+
+  # generate cloud-init script from template
+  # script will be executed by root user
   cloud_init_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
     arch                    = "amd64"
     app_name                = var.app_name
     codename                = "noble"
-    email                   = var.alert_email
-    hook_data               = local.hook_data
     env_data                = local.env_data
     # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
-    # предполагаем, что скрипт выполняется от имени root.
     docker_config_dir       = "/home/ubuntu/.docker"
     docker_config_file      = "/home/ubuntu/.docker/config.json"
     ecr_helper_path         = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
