@@ -15,10 +15,11 @@ services:
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
+    mem_limit: 512m
     command: >
       sh -c "
       chown -R spring:spring /app/src/main/resources/voice &&
-      java
+      java $JAVA_OPTS
       -Dhttp.proxyHost=$TGBOT_PROXY_HOSTNAME
       -Dhttp.proxyPort=$TGBOT_PROXY_PORT
       -Dhttps.proxyUser=$TGBOT_PROXY_USERNAME

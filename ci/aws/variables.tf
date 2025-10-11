@@ -36,7 +36,7 @@ variable "tgbot_voice_path" {
 }
 
 variable "tgbot_allowed_user_names" {
-  description = "List of admin"
+  description = "List of admins"
   type        = list(string)
 }
 
@@ -72,4 +72,10 @@ variable "google_cloud_project_id" {
 }
 
 variable "google_cloud_region" {
+}
+
+variable "java_opts" {
+  description = "Custom JVM options to be passed to the Java application (e.g., memory settings, GC options)"
+  type        = string
+  default     = "-Xmx512m -Xms256m"
 }

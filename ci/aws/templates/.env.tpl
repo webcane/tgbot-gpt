@@ -11,3 +11,4 @@ TGBOT_PROXY_PORT=${tgbot_proxy_port}
 TGBOT_PROXY_USERNAME=${tgbot_proxy_username}
 TGBOT_PROXY_PASSWORD=${tgbot_proxy_password}
 REGISTRY_PREFIX=${registry_prefix}
+JAVA_OPTS=${java_opts}
