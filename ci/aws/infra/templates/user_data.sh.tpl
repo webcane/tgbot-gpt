@@ -97,12 +97,12 @@ fi
 DOCKER_CONFIG_FILE="$DOCKER_CONFIG_DIR/config.json"
 echo "Create $DOCKER_CONFIG_FILE..." >> "$LOG_FILE"
 #  Docker will use ecr-login to access ECR
+touch "$DOCKER_CONFIG_FILE"
 # user owner is ubuntu
 sudo chown ubuntu:ubuntu "$DOCKER_CONFIG_FILE"
 
 # Configure docker config.json to use with ECR Credential Helper
 echo "Configuring Docker to use ECR credential helper in $DOCKER_CONFIG_FILE..." >> "$LOG_FILE"
-
 echo "Use jq to add keys safety" >> "$LOG_FILE"
 # .credHelpers."public.ecr.aws" - for public  ECR
 # .credHelpers."*.dkr.ecr.aws" - for all regions - private ECR
