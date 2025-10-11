@@ -60,9 +60,8 @@ if [ $? -ne 0 ]; then
 fi
 echo "gcloud project set to ${google_cloud_project_id} for user 'ubuntu'." >> "$LOG_FILE"
 
-
 # install aws cli
-echo "Install jq" >> " $LOG_FILE"
+echo "Install aws cli" >> " $LOG_FILE"
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 sudo apt update && sudo apt install -y unzip
 unzip awscliv2.zip
@@ -216,4 +215,4 @@ sudo chown -R ubuntu:ubuntu "$DEPLOY_FILE"
 chmod +x "$DEPLOY_FILE"
 
 
-echo "Cloud-init script finished." >> " $LOG_FILE"
+echo "User-data script finished." >> " $LOG_FILE"
