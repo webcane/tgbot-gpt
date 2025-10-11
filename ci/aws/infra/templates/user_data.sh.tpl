@@ -162,43 +162,9 @@ sudo chmod 600 "$CREDENTIALS_FILE"
 echo "Google credentials saved to $CREDENTIALS_FILE for user 'ubuntu'." >> " $LOG_FILE"
 
 
-ENV_FILE="$APP_DIR/.env"
-SSM_PARAMETER_ENV_FILE="/${app_name}/.env"
-
-echo "Create .env file" >> " $LOG_FILE"
-touch "$ENV_FILE"
-
-echo "Retrieving .env from SSM Parameter Store..." >> " $LOG_FILE"
-aws ssm get-parameter --name "$SSM_PARAMETER_ENV_FILE" --with-decryption --query Parameter.Value --output text > "$ENV_FILE"
-if [ $? -ne 0 ]; then
-    echo "Failed to retrieve .env from SSM. Check IAM permissions and parameter name."
-    exit 1
-fi
-# file owner is ubuntu
-sudo chown -R ubuntu:ubuntu "$ENV_FILE"
-# only owner can read/write
-sudo chmod 600 "$ENV_FILE"
-
-
-
-DOCKER_COMPOSE_FILE="$APP_DIR/docker-compose.yml"
-SSM_PARAMETER_DOCKER_COMPOSE_FILE="/${app_name}/docker-compose.yml"
-
-echo "Create docker-compose.yml file" >> " $LOG_FILE"
-touch "$DOCKER_COMPOSE_FILE"
-
-echo "Retrieving docker-compose.yml from SSM Parameter Store..." >> " $LOG_FILE"
-aws ssm get-parameter --name "$SSM_PARAMETER_DOCKER_COMPOSE_FILE" --with-decryption --query Parameter.Value --output text > "$DOCKER_COMPOSE_FILE"
-if [ $? -ne 0 ]; then
-    echo "Failed to retrieve docker-compose.yml from SSM. Check IAM permissions and parameter name."
-    exit 1
-fi
-# file owner is ubuntu
-sudo chown -R ubuntu:ubuntu "$DOCKER_COMPOSE_FILE"
-
 
 DEPLOY_FILE="$APP_DIR/deploy.sh"
-SSM_PARAMETER_DEPLOY_FILE="/${app_name}/deploy.sh"
+SSM_PARAMETER_DEPLOY_FILE="/$APP_NAME/deploy_sh"
 
 echo "Create deploy.sh file" >> " $LOG_FILE"
 touch "$DEPLOY_FILE"

@@ -4,10 +4,9 @@ services:
     container_name: $PROJECT
     working_dir: /app
     volumes:
-      - voice:${VOICE_MOUNT_PATH}
-      - tmp_data:/tmp
+      - ~/voice:/app/src/main/resources/voice
       - ~/google-credentials.json:/app/google-credentials.json
-#    tmpfs: /tmp
+      - tmp_data:/tmp
     env_file:
       - .env
     environment:
@@ -21,7 +20,6 @@ services:
       app-network: { }
 
 volumes:
-  voice:
   tmp_data:
 
 networks:
