@@ -51,12 +51,15 @@ resource "aws_eip_association" "this" {
 }
 
 locals {
+  registry_prefix = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/"
+
   # generate cloud-init script from template
   # script will be executed by root user
   cloud_init_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
     arch                    = "amd64"
     codename                = "noble"
     app_name                = var.app_name
+    registry_prefix         = local.registry_prefix
     google_cloud_project_id = var.google_cloud_project_id
   })
   ecr_repository_name    = var.app_name

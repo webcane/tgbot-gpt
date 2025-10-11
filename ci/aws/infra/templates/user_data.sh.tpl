@@ -99,7 +99,7 @@ echo "Configuring Docker to use ECR credential helper in $DOCKER_CONFIG_FILE..."
 echo "Use jq to add keys safety" >> "$LOG_FILE"
 # .credHelpers."public.ecr.aws" - for public  ECR
 # .credHelpers."*.dkr.ecr.aws" - for all regions - private ECR
-jq_command='.credHelpers."public.ecr.aws" = "ecr-login" | .credHelpers."*.dkr.ecr.aws" = "ecr-login"'
+jq_command='.credHelpers."${registry_prefix}" = "ecr-login"'
 # Check if config.json exist
 if [ -f "$DOCKER_CONFIG_FILE" ]; then
     jq "$jq_command" "$DOCKER_CONFIG_FILE" > "$DOCKER_CONFIG_FILE.tmp" && mv "$DOCKER_CONFIG_FILE.tmp" "$DOCKER_CONFIG_FILE"
