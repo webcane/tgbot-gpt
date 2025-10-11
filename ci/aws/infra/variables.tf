@@ -10,11 +10,6 @@ variable "aws_region" {
   default     = "eu-central-1"
 }
 
-variable "aws_account" {
-  description = "AWS account"
-  type        = string
-}
-
 variable "key_name" {
   description = "SSH key name"
   type        = string
@@ -24,36 +19,6 @@ variable "key_name" {
 variable "alert_email" {
   description = "budget alert email"
   type        = string
-}
-
-variable "server_port" {
-}
-
-variable "tgbot_token" {
-}
-
-variable "tgbot_voice_path" {
-}
-
-variable "tgbot_allowed_user_names" {
-  description = "List of admins"
-  type        = list(string)
-}
-
-variable "tgbot_proxy_hostname" {
-}
-
-variable "tgbot_proxy_port" {
-  default = 42567
-}
-
-variable "tgbot_proxy_username" {
-}
-
-variable "tgbot_proxy_password" {
-}
-
-variable "openai_api_key" {
 }
 
 variable "github_repository_owner" {
@@ -69,16 +34,6 @@ variable "github_environment_name" {
 }
 
 variable "google_cloud_project_id" {
-}
-
-variable "google_cloud_region" {
-}
-
-variable "java_opts" {
-  description = "Custom JVM options to be passed to the Java application (e.g., memory settings, GC options)"
+  description = "Google Cloud project ID"
   type        = string
-  default     = "-Xmx512m -Xms256m"
-}
-variable "voice_mount_path" {
-  type = string
 }

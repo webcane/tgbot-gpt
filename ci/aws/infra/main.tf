@@ -5,6 +5,11 @@ terraform {
       version = ">= 5.95.0"
     }
   }
+  backend "s3" {
+    bucket = "tgbot-gpt-tf"
+    region = "eu-central-1"
+    key    = "tgbot-gpt-infra.tfstate"
+  }
 }
 
 provider "aws" {
@@ -33,7 +38,7 @@ data "aws_subnets" "this" {
 # define elastic ip for use in vpc
 resource "aws_eip" "this" {
   domain = "vpc"
-  tags   = {
+  tags = {
     Terraform = "true"
     Project   = var.app_name
   }
@@ -46,42 +51,12 @@ resource "aws_eip_association" "this" {
 }
 
 locals {
-  registry_prefix = "${var.aws_account}.dkr.ecr.${var.aws_region}.amazonaws.com/"
-
-  # generate .env file from template
-  env_data = templatefile("${path.module}/templates/.env.tpl", {
-    project                  = var.app_name
-    server_port              = var.server_port
-    openai_api_key           = var.openai_api_key
-    google_cloud_project_id  = var.google_cloud_project_id
-    google_cloud_region      = var.google_cloud_region
-    tgbot_token              = var.tgbot_token
-    tgbot_voice_path         = var.tgbot_voice_path
-    tgbot_allowed_user_names = join(",", var.tgbot_allowed_user_names)
-    tgbot_proxy_hostname     = var.tgbot_proxy_hostname
-    tgbot_proxy_port         = var.tgbot_proxy_port
-    tgbot_proxy_username     = var.tgbot_proxy_username
-    tgbot_proxy_password     = var.tgbot_proxy_password
-    registry_prefix          = local.registry_prefix
-    java_opts                = var.java_opts
-    voice_mount_path         = var.voice_mount_path
-  })
-
   # generate cloud-init script from template
   # script will be executed by root user
   cloud_init_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
     arch                    = "amd64"
-    app_name                = var.app_name
     codename                = "noble"
-    env_data                = local.env_data
-    # Определяем директорию для Docker config. Поскольку предупреждение '/root/.docker/',
-    docker_config_dir       = "/home/ubuntu/.docker"
-    docker_config_file      = "/home/ubuntu/.docker/config.json"
-    ecr_helper_path         = "/usr/local/bin/docker-credential-ecr-login" # Куда устанавливаем хелпер
-    # Используем конкретную версию для стабильности. Проверяйте актуальную на GitHub releases
-    # see https://github.com/awslabs/amazon-ecr-credential-helper/releases
-    helper_version          = "0.10.1"
-    registry_prefix         = local.registry_prefix
+    app_name                = var.app_name
     google_cloud_project_id = var.google_cloud_project_id
   })
   ecr_repository_name    = var.app_name
@@ -105,8 +80,8 @@ module "tgbot-ec2" {
   # Enable creation of EC2 IAM instance profile
   create_iam_instance_profile = true
   # role to deal with another AWS services. see aws_iam_role_policy_attachment.ec2_ssm_policy_attachment
-  iam_role_name               = local.iam_role_name
-  root_block_device           = {
+  iam_role_name = local.iam_role_name
+  root_block_device = {
     delete_on_termination = true
     encrypted             = false
     size                  = 16
@@ -119,13 +94,13 @@ module "tgbot-ec2" {
 }
 
 module "tgbot-sg" {
-  source                   = "terraform-aws-modules/security-group/aws"
-  version                  = ">= 5.3.0"
-  name                     = "${var.app_name}-sg"
-  description              = "Security group for telegram bot deployed on EC2. Allow public access"
-  vpc_id                   = data.aws_vpc.default.id
-  ingress_cidr_blocks      = ["0.0.0.0/0"]
-  ingress_rules            = ["ssh-tcp", "http-80-tcp"]
+  source              = "terraform-aws-modules/security-group/aws"
+  version             = ">= 5.3.0"
+  name                = "${var.app_name}-sg"
+  description         = "Security group for telegram bot deployed on EC2. Allow public access"
+  vpc_id              = data.aws_vpc.default.id
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["ssh-tcp", "http-80-tcp"]
   ingress_with_cidr_blocks = [
     {
       from_port   = 8080
@@ -144,25 +119,25 @@ resource "aws_budgets_budget" "free_tier" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
   cost_filter {
-    name   = "Service"
+    name = "Service"
     values = [
       "Amazon Elastic Compute Cloud - Compute",
     ]
   }
   notification {
-    comparison_operator        = "GREATER_THAN"
-    threshold                  = 80
-    threshold_type             = "PERCENTAGE"
-    notification_type          = "ACTUAL"
+    comparison_operator = "GREATER_THAN"
+    threshold           = 80
+    threshold_type      = "PERCENTAGE"
+    notification_type   = "ACTUAL"
     subscriber_email_addresses = [
       var.alert_email
     ]
   }
   notification {
-    comparison_operator        = "GREATER_THAN"
-    threshold                  = 100
-    threshold_type             = "PERCENTAGE"
-    notification_type          = "FORECASTED"
+    comparison_operator = "GREATER_THAN"
+    threshold           = 100
+    threshold_type      = "PERCENTAGE"
+    notification_type   = "FORECASTED"
     subscriber_email_addresses = [
       var.alert_email
     ]
@@ -175,20 +150,20 @@ resource "aws_budgets_budget" "free_tier" {
 
 # ECR
 module "ecr_repository" {
-  source                          = "terraform-aws-modules/ecr/aws"
-  version                         = "~> 2.4.0"
-  repository_name                 = local.ecr_repository_name
-  create_repository               = true
+  source            = "terraform-aws-modules/ecr/aws"
+  version           = "~> 2.4.0"
+  repository_name   = local.ecr_repository_name
+  create_repository = true
   # Configuration for image scanning and tag immutability (recommended)
-  repository_image_scan_on_push   = true
+  repository_image_scan_on_push = true
   # Prevents tags from being overwritten (e.g., 'latest')
   repository_image_tag_mutability = "MUTABLE"
-  repository_lifecycle_policy     = jsonencode({
+  repository_lifecycle_policy = jsonencode({
     rules = [
       {
         rulePriority = 1,
         description  = "Keep the latest 5 tagged images",
-        selection    = {
+        selection = {
           tagStatus     = "tagged",
           tagPrefixList = ["latest"],
           countType     = "imageCountMoreThan",
@@ -208,7 +183,7 @@ module "ecr_repository" {
 
 # 1. Get the OIDC provider for GitHub
 resource "aws_iam_openid_connect_provider" "github_actions" {
-  url            = "https://token.actions.githubusercontent.com"
+  url = "https://token.actions.githubusercontent.com"
   client_id_list = [
     "sts.amazonaws.com"
   ]
@@ -236,14 +211,14 @@ resource "aws_iam_role" "github_actions_ecr" {
 
   # Policy that allows OIDC authentication from GitHub Actions
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Federated = aws_iam_openid_connect_provider.github_actions.arn
         },
-        Action    = "sts:AssumeRoleWithWebIdentity",
+        Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
@@ -262,7 +237,7 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
   description = "Policy to allow GitHub Actions to push/pull from ECR for ${local.ecr_repository_name}"
 
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
         Effect = "Allow",
@@ -313,8 +288,8 @@ resource "aws_iam_role_policy_attachment" "ec2_ecr_policy_attachment" {
 resource "aws_iam_policy" "kms_policy" {
   name        = "ssm-google-credentials-decrypt-policy"
   description = "Allows EC2 to decrypt Google credentials from SSM Parameter Store"
-  policy      = jsonencode({
-    Version   = "2012-10-17"
+  policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow",
