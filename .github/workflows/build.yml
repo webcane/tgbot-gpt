@@ -5,6 +5,7 @@ on:
       - master
       - github-build-ecr
       - gemini-2
+      - build-jar-with-docker
   pull_request:
     branches:
       - master
@@ -37,22 +38,6 @@ jobs:
         shell: bash
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-
-      - name: Set up JDK ${{env.JAVA_VERSION}}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{env.JAVA_VERSION}}
-          distribution: 'temurin'
-          cache: 'gradle'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew # Make gradlew executable
-
-      - name: Download dependencies by Gradle
-        run: ./gradlew dependencies --no-daemon # for caching
-
-      - name: Build Layered Spring Boot app with Gradle
-        run: ./gradlew bootJar --no-daemon # Build layered JAR
 
       - name: Configure AWS credentials (using OIDC)
         uses: aws-actions/configure-aws-credentials@v4
