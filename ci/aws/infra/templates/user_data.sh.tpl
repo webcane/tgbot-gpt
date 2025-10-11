@@ -10,8 +10,8 @@ chown -R ubuntu:ubuntu "$APP_DIR"
 
 echo "Create voice directory $APP_DIR/voice..." >> "$LOG_FILE"
 mkdir "$APP_DIR/voice"
-chown -R ubuntu:ubuntu "$APP_DIR/voice"
-chmod -R 770 "$APP_DIR/voice"
+sudo chown -R ubuntu:ubuntu "$APP_DIR/voice"
+sudo chmod -R 770 "$APP_DIR/voice"
 
 echo "Add Docker's official GPG key" >> "$LOG_FILE"
 sudo apt-get update
@@ -37,7 +37,7 @@ newgrp docker
 echo "Create .docker directory for ubuntu user if missing" >> "$LOG_FILE"
 # Define Docker config directory for ubuntu user to avoid warning '/root/.docker/',
 DOCKER_CONFIG_DIR="/home/ubuntu/.docker"
-mkdir -p "$DOCKER_CONFIG_DIR"
+mkdir "$DOCKER_CONFIG_DIR"
 sudo chown ubuntu:ubuntu "$DOCKER_CONFIG_DIR"
 
 echo "Install gcloud dependencies" >> "$LOG_FILE"
@@ -72,7 +72,6 @@ sudo ./aws/install
 echo "Install jq" >> "$LOG_FILE"
 sudo apt install -y jq
 
-
 echo "Install and configure ECR Credential Helper" >> "$LOG_FILE"
 ECR_HELPER_PATH="/usr/local/bin/docker-credential-ecr-login"
 # use specific version for stability. Check latest on GitHub releases
@@ -93,13 +92,14 @@ else
     echo "ECR credential helper already exists at $ECR_HELPER_PATH." >> "$LOG_FILE"
 fi
 
-
 DOCKER_CONFIG_FILE="$DOCKER_CONFIG_DIR/config.json"
 echo "Create $DOCKER_CONFIG_FILE..." >> "$LOG_FILE"
 #  Docker will use ecr-login to access ECR
 touch "$DOCKER_CONFIG_FILE"
 # user owner is ubuntu
 sudo chown ubuntu:ubuntu "$DOCKER_CONFIG_FILE"
+# set secure permissions
+sudo chmod 600 "$DOCKER_CONFIG_FILE"
 
 # Configure docker config.json to use with ECR Credential Helper
 echo "Configuring Docker to use ECR credential helper in $DOCKER_CONFIG_FILE..." >> "$LOG_FILE"
@@ -114,10 +114,8 @@ else
     # Create new config.json with credsHelpers section
     echo "{}" | jq "$jq_command" > "$DOCKER_CONFIG_FILE"
 fi
-# set secure permissions
-chmod 600 "$DOCKER_CONFIG_FILE"
 echo "Docker config.json updated. Credentials will not be stored unencrypted. \
-      ECR setup complete. Docker will now use IAM Role for ECR authentication." >> "$LOG_FILE"
+ECR setup complete. Docker will now use IAM Role for ECR authentication." >> "$LOG_FILE"
 
 # default Google ADC path
 CREDENTIALS_DIR="/home/ubuntu/.config/google"
