@@ -23,5 +23,7 @@ out/
 
 ### env variables ###
 .env
+*.env
 
 **/terraform.tfvars
+**/*.tfplan
