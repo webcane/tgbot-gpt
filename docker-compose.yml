@@ -5,7 +5,7 @@ services:
     working_dir: /app
     volumes:
       - ~/voice:/app/src/main/resources/voice
-      - ~/google-credentials.json:/app/google-credentials.json
+      - ~/.config/google/google-credentials.json:/app/google-credentials.json
       - tmp_data:/tmp
     env_file:
       - .env

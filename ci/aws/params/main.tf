@@ -20,7 +20,7 @@ resource "aws_ssm_parameter" "google_credentials_json" {
   name        = "/tgbot-gpt/google_credentials_json"
   description = "Google Cloud credentials file in JSON format"
   type        = "SecureString"
-  value       = file("${pathexpand("~")}/google-credentials.json")
+  value       = file("${pathexpand("~")}/.config/google/google-credentials.json")
 }
 
 resource "aws_ssm_parameter" "docker_compose_yml" {
