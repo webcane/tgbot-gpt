@@ -74,7 +74,7 @@ module "tgbot-ec2" {
   version                     = ">= 5.8.0"
   name                        = "${var.app_name}-ec2"
   ami                         = "ami-02003f9f0fde924ea" # Ubuntu 24.04 64bit x86
-  instance_type               = "t2.micro"
+  instance_type               = "t3.micro"
   key_name                    = var.key_name
   vpc_security_group_ids      = [module.tgbot-sg.security_group_id]
   associate_public_ip_address = true
