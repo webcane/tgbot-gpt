@@ -51,7 +51,7 @@ resource "aws_eip_association" "this" {
 }
 
 locals {
-  registry_prefix = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/"
+  registry_prefix = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com"
 
   # generate cloud-init script from template
   # script will be executed by root user
