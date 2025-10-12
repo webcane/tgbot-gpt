@@ -1,7 +1,9 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/${app_name}.log"
-echo "Starting user-data script execution" >> "$LOG_FILE"
+touch "$LOG_FILE"
+sudo chown ubuntu:ubuntu "$LOG_FILE"
+echo "$(date '+%Y-%m-%d %H:%M:%S') Starting user-data script execution" >> "$LOG_FILE"
 
 APP_DIR="/home/ubuntu/${app_name}"
 echo "Create working directory $APP_DIR..." >> "$LOG_FILE"

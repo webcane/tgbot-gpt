@@ -5,7 +5,8 @@ APP_DIR="$(pwd)"
 APP_NAME=tgbot-gpt
 
 LOG_FILE="/var/log/$APP_NAME-deploy.log"
-echo "Starting deploy script execution" >> "$LOG_FILE"
+sudo chown ubuntu:ubuntu "$LOG_FILE"
+echo "$(date '+%Y-%m-%d %H:%M:%S') Starting deploy script execution" >> "$LOG_FILE"
 
 
 ENV_FILE=".env"
