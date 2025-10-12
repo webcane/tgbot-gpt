@@ -3,7 +3,7 @@
 #APP_DIR="${APP_DIR:-/home/ubuntu/app}"
 APP_DIR="$(pwd)"
 APP_NAME=tgbot-gpt
-LOG_FILE="/var/log/$APP_NAME.log"
+LOG_FILE="/var/log/$APP_NAME-deploy.log"
 
 echo "Starting deploy script execution" >> "$LOG_FILE"
 
