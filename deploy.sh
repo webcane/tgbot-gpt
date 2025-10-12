@@ -7,31 +7,34 @@ LOG_FILE="/var/log/$APP_NAME.log"
 
 echo "Starting deploy script execution" >> "$LOG_FILE"
 
+
 ENV_FILE=".env"
-echo "Retrieving .env from SSM Parameter Store..." >> "$LOG_FILE"
+echo "Create $ENV_FILE file" >> "$LOG_FILE"
+> $ENV_FILE
+echo "Retrieving $ENV_FILE from SSM Parameter Store..." >> "$LOG_FILE"
 SSM_PARAMETER_ENV_FILE="/$APP_NAME/dot_env"
 aws ssm get-parameter --name "$SSM_PARAMETER_ENV_FILE" --with-decryption --query Parameter.Value --output text > "$ENV_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve .env from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
+    echo "Failed to retrieve $ENV_FILE from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 
 
 DOCKER_COMPOSE_FILE="docker-compose.yml"
-echo "Create docker-compose.yml file" >> "$LOG_FILE"
-> "$DOCKER_COMPOSE_FILE"
-
-echo "Retrieving docker-compose.yml from SSM Parameter Store..." >> "$LOG_FILE"
-SSM_PARAMETER_DOCKER_COMPOSE_FILE="/$APP_NAME/docker-compose_yml"
+echo "Create $DOCKER_COMPOSE_FILE file" >> "$LOG_FILE"
+> $DOCKER_COMPOSE_FILE
+echo "Retrieving $DOCKER_COMPOSE_FILE from SSM Parameter Store..." >> "$LOG_FILE"
+SSM_PARAMETER_DOCKER_COMPOSE_FILE="/$APP_NAME/docker_compose_yml"
 aws ssm get-parameter --name "$SSM_PARAMETER_DOCKER_COMPOSE_FILE" --with-decryption --query Parameter.Value --output text > "$DOCKER_COMPOSE_FILE"
 if [ $? -ne 0 ]; then
-    echo "Failed to retrieve docker-compose.yml from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
+    echo "Failed to retrieve $DOCKER_COMPOSE_FILE from SSM. Check IAM permissions and parameter name." >> "$LOG_FILE"
     exit 1
 fi
 
 
 echo "--- $(date) ---"
 echo "Starting deployment..." >> "$LOG_FILE"
+
 
 echo "Application directory: $APP_DIR" >> "$LOG_FILE"
 cd "$APP_DIR" || { echo "Error: Cannot change directory to $APP_DIR. Exiting." >> "$LOG_FILE"; exit 1; }
@@ -43,6 +46,7 @@ if [ $? -ne 0 ]; then
 fi
 echo "Existing services stopped." >> "$LOG_FILE"
 
+
 echo "Starting new Docker Compose services..." >> "$LOG_FILE"
 sudo -u ubuntu docker compose up -d --force-recreate
 if [ $? -ne 0 ]; then
@@ -50,5 +54,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "Application deployed and running." >> "$LOG_FILE"
+
 
 echo "Deployment script finished successfully." >> "$LOG_FILE"
