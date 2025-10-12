@@ -3,7 +3,7 @@
 LOG_FILE="/var/log/${app_name}.log"
 echo "Starting user-data script execution" >> "$LOG_FILE"
 
-APP_DIR="/home/ubuntu/${app_name}.www"
+APP_DIR="/home/ubuntu/${app_name}"
 echo "Create working directory $APP_DIR..." >> "$LOG_FILE"
 mkdir "$APP_DIR"
 chown -R ubuntu:ubuntu "$APP_DIR"

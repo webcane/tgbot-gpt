@@ -3,14 +3,15 @@
 #APP_DIR="${APP_DIR:-/home/ubuntu/app}"
 APP_DIR="$(pwd)"
 APP_NAME=tgbot-gpt
-LOG_FILE="/var/log/$APP_NAME-deploy.log"
 
+LOG_FILE="/var/log/$APP_NAME-deploy.log"
 echo "Starting deploy script execution" >> "$LOG_FILE"
 
 
 ENV_FILE=".env"
 echo "Create $ENV_FILE file" >> "$LOG_FILE"
 > $ENV_FILE
+sudo chown ubuntu:ubuntu $ENV_FILE
 echo "Retrieving $ENV_FILE from SSM Parameter Store..." >> "$LOG_FILE"
 SSM_PARAMETER_ENV_FILE="/$APP_NAME/dot_env"
 aws ssm get-parameter --name "$SSM_PARAMETER_ENV_FILE" --with-decryption --query Parameter.Value --output text > "$ENV_FILE"
@@ -23,6 +24,7 @@ fi
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 echo "Create $DOCKER_COMPOSE_FILE file" >> "$LOG_FILE"
 > $DOCKER_COMPOSE_FILE
+sudo chown ubuntu:ubuntu $DOCKER_COMPOSE_FILE
 echo "Retrieving $DOCKER_COMPOSE_FILE from SSM Parameter Store..." >> "$LOG_FILE"
 SSM_PARAMETER_DOCKER_COMPOSE_FILE="/$APP_NAME/docker_compose_yml"
 aws ssm get-parameter --name "$SSM_PARAMETER_DOCKER_COMPOSE_FILE" --with-decryption --query Parameter.Value --output text > "$DOCKER_COMPOSE_FILE"
