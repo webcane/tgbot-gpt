@@ -67,6 +67,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             // voice to text
             var voicePrompt = voiceClient.transcribe(voiceFileResource);
             String answer = getGptAnswer(chatId, voicePrompt);
+            log.debug("reply answer: {}", answer);
 
             // delete quick reply
             var delCommand = new DeleteMessageCommand(telegramClient);
@@ -89,8 +90,11 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         }
 
         if (botSettings.getUseMarkup(chatId)) {
-            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
-                    .text(escape(answer));
+//            var escapedText = escape(answer);
+            var escapedText = answer;
+            log.debug("escaped answer: {}", escapedText);
+            msgBuilder.parseMode(ParseMode.HTML)
+                    .text(escapedText);
         } else {
             msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));
         }
@@ -113,12 +117,10 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
     Resource downloadFileResource(File file) {
         String fileUrl = file.getFileUrl(properties.token());
         log.debug("remote voice file url: {}", fileUrl);
-
-//        String downloadDir = properties.voicePath();
         Path downloadDir = Paths.get("src/main/resources");
 
         try {
-            // Создание полного пути для сохранения файла
+            // create full file path to save
             var filePath = downloadDir.resolve(file.getFilePath());
             log.debug("save voice file to: {}", filePath);
 
@@ -134,7 +136,7 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
                 log.info("Created file: {}", filePath);
             }
 
-            // сохраняем файл
+            // save received file from telegram
             URI uri = new URI(fileUrl);
             try (InputStream inputStream = uri.toURL().openStream()) {
                 try (FileOutputStream outputStream = new FileOutputStream(filePath.toFile())) {

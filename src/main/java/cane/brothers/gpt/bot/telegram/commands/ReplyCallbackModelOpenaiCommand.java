@@ -51,7 +51,7 @@ class ReplyCallbackModelOpenaiCommand implements ChatCommand<CallbackQuery>, Uti
         msgBuilder.replyToMessageId(messageId);
 
         if (botSettings.getUseMarkup(chatId)) {
-            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
+            msgBuilder.parseMode(ParseMode.HTML)
                     .text(escape(answer));
         } else {
             msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));

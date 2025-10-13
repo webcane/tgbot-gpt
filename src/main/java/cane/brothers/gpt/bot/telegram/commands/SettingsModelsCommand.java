@@ -26,11 +26,11 @@ class SettingsModelsCommand implements ChatCommand<Message> {
     @Override
     public void execute(Message data) throws TelegramApiException {
         Long chatId = data.getChatId();
-        log.debug("Chat: %d. Show model settings".formatted(chatId));
+        log.debug("Chat: {}. Show model settings", chatId);
 
         var reply = SendMessage.builder().chatId(chatId)
-                .parseMode(ParseMode.MARKDOWNV2)
-                .text("Use one of the *AI models* bellow to ask your questions")
+                .parseMode(ParseMode.HTML)
+                .text("Use one of the <b>AI models</b> bellow to ask your questions")
                 .replyMarkup(getModelsKeyboard())
                 .build();
 

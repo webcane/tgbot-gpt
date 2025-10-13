@@ -61,8 +61,10 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
         }
 
         if (botSettings.getUseMarkup(chatId)) {
-            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
-                    .text(escape(answer));
+            //            var escapedText = escape(answer);
+            var escapedText = answer;
+            msgBuilder.parseMode(ParseMode.HTML)
+                    .text(escapedText);
         } else {
             msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));
         }
