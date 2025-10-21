@@ -3,6 +3,7 @@ package cane.brothers.gpt.bot.telegram.commands;
 import cane.brothers.gpt.bot.AppProperties;
 import cane.brothers.gpt.bot.ai.ChatClientService;
 import cane.brothers.gpt.bot.ai.ChatVoiceClientService;
+import cane.brothers.gpt.bot.telegram.TgAnswer;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,6 @@ import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 @Slf4j
@@ -36,7 +34,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
 
-    private final static int TG_ANSWER_LIMIT = 4000 - 20;
+//    private final static int TG_ANSWER_LIMIT = 4000 - 20;
     private final ChatClientService chatClient;
     private final ChatVoiceClientService voiceClient;
     private final TelegramClient telegramClient;
@@ -66,22 +64,23 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         if (voiceFileResource != null) {
             // voice to text
             var voicePrompt = voiceClient.transcribe(voiceFileResource);
-            String answer = getGptAnswer(chatId, voicePrompt);
-            log.debug("reply answer: {}", answer);
+            TgAnswer answer = getGptAnswer(chatId, voicePrompt, data.getFrom().getUserName());
+            // log.debug("reply answer: {}", answer);
 
             // delete quick reply
             var delCommand = new DeleteMessageCommand(telegramClient);
             delCommand.execute(replyMessage);
 
-            if (answer.length() > TG_ANSWER_LIMIT) {
-                sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
-            } else {
+            // TODO send fragments
+//            if (answer.length() > TG_ANSWER_LIMIT) {
+//                sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
+//            } else {
                 sendReply(chatId, messageId, answer);
-            }
+//            }
         }
     }
 
-    private void sendReply(Long chatId, Integer messageId, String answer) throws TelegramApiException {
+    private void sendReply(Long chatId, Integer messageId, TgAnswer answer) throws TelegramApiException {
         var msgBuilder = SendMessage.builder().chatId(chatId);
 
         if (messageId != null && botSettings.getUseReply(chatId)) {
@@ -90,29 +89,28 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         }
 
         if (botSettings.getUseMarkup(chatId)) {
-//            var escapedText = escape(answer);
-            var escapedText = answer;
+            var escapedText = answer.toText(this::escape);
             log.debug("escaped answer: {}", escapedText);
-            msgBuilder.parseMode(ParseMode.HTML)
+            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
                     .text(escapedText);
         } else {
-            msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));
+            msgBuilder.text("no clue");
         }
 
         var reply = msgBuilder.build();
         telegramClient.execute(reply);
     }
 
-    private void sendReplyFragments(Long chatId, Integer messageId, String answer, int maxLength) throws TelegramApiException {
-        boolean sentReply = false;
-        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLength + "})(?=\\s|$)", Pattern.DOTALL);
-        Matcher m = p.matcher(answer);
-        while (m.find()) {
-            String fragment = m.group(1);
-            sendReply(chatId, sentReply ? null : messageId, fragment);
-            sentReply = true;
-        }
-    }
+//    private void sendReplyFragments(Long chatId, Integer messageId, String answer, int maxLength) throws TelegramApiException {
+//        boolean sentReply = false;
+//        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLength + "})(?=\\s|$)", Pattern.DOTALL);
+//        Matcher m = p.matcher(answer);
+//        while (m.find()) {
+//            String fragment = m.group(1);
+//            sendReply(chatId, sentReply ? null : messageId, fragment);
+//            sentReply = true;
+//        }
+//    }
 
     Resource downloadFileResource(File file) {
         String fileUrl = file.getFileUrl(properties.token());
@@ -152,8 +150,8 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
         }
     }
 
-    String getGptAnswer(Long chatId, String userMessage) {
-        return chatClient.call(chatId, userMessage);
+    TgAnswer getGptAnswer(Long chatId, String userMessage, String userName) {
+        return chatClient.call(chatId, userMessage, userName);
     }
 
     private void logUserMessage(Message data) {

@@ -51,7 +51,7 @@ class ReplyCallbackModelGeminiCommand implements ChatCommand<CallbackQuery>, Uti
         msgBuilder.replyToMessageId(messageId);
 
         if (botSettings.getUseMarkup(chatId)) {
-            msgBuilder.parseMode(ParseMode.HTML)
+            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
                     .text(escape(answer));
         } else {
             msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));

@@ -6,7 +6,6 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
 import org.springframework.ai.chat.observation.ChatModelObservationConvention;
 import org.springframework.ai.model.SimpleApiKey;
-import org.springframework.ai.model.chat.client.autoconfigure.ChatClientBuilderConfigurer;
 import org.springframework.ai.model.openai.autoconfigure.OpenAIAutoConfigurationUtil;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionProperties;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
@@ -35,11 +34,10 @@ import java.util.Objects;
 class OpenAiConfig {
 
     @Bean
-    OpenAiApi openAiApi(OpenAiChatProperties chatProperties, OpenAiConnectionProperties commonProperties,
-                        RestClient.Builder restClientBuilder, ResponseErrorHandler responseErrorHandler,
-                        String modelType) {
+    OpenAiApi openAiChatApi(OpenAiChatProperties chatProperties, OpenAiConnectionProperties commonProperties,
+                            RestClient.Builder restClientBuilder, ResponseErrorHandler responseErrorHandler) {
         OpenAIAutoConfigurationUtil.ResolvedConnectionProperties resolved = OpenAIAutoConfigurationUtil
-                .resolveConnectionProperties(commonProperties, chatProperties, modelType);
+                .resolveConnectionProperties(commonProperties, chatProperties, "chat");
         return OpenAiApi.builder()
                 .baseUrl(resolved.baseUrl())
                 .apiKey(new SimpleApiKey(resolved.apiKey()))
@@ -60,19 +58,20 @@ class OpenAiConfig {
                                     ObjectProvider<ObservationRegistry> observationRegistry,
                                     ObjectProvider<ChatModelObservationConvention> observationConvention,
                                     ObjectProvider<ToolExecutionEligibilityPredicate> openAiToolExecutionEligibilityPredicate) {
-        OpenAiApi openAiApi = this.openAiApi(chatProperties,
+        OpenAiApi openAiApi = this.openAiChatApi(chatProperties,
                 commonProperties,
                 restClientBuilderProvider.getIfAvailable(RestClient::builder),
-                responseErrorHandler, "chat");
+                responseErrorHandler);
 
         OpenAiChatModel chatModel = OpenAiChatModel.builder()
                 .openAiApi(openAiApi)
                 .defaultOptions(chatProperties.getOptions())
                 .toolCallingManager(toolCallingManager)
-                .toolExecutionEligibilityPredicate((ToolExecutionEligibilityPredicate) openAiToolExecutionEligibilityPredicate.getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
-                .retryTemplate(retryTemplate).observationRegistry((ObservationRegistry) observationRegistry.getIfUnique(() -> {
-                    return ObservationRegistry.NOOP;
-                })).build();
+                .toolExecutionEligibilityPredicate(openAiToolExecutionEligibilityPredicate
+                        .getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
+                .retryTemplate(retryTemplate).observationRegistry(observationRegistry.getIfUnique(() ->
+                        ObservationRegistry.NOOP
+                )).build();
         Objects.requireNonNull(chatModel);
         observationConvention.ifAvailable(chatModel::setObservationConvention);
         return chatModel;

@@ -1,7 +1,7 @@
 package cane.brothers.gpt.bot.telegram.commands;
 
 import cane.brothers.gpt.bot.ai.ChatClientService;
-import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
+import cane.brothers.gpt.bot.telegram.TgAnswer;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,16 +12,12 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Slf4j
 @Component("/gpt")
 @RequiredArgsConstructor
 class ReplyGptCommand implements ChatCommand<Message>, Utils {
 
-    private final static int TG_ANSWER_LIMIT = 4000 - 20;
+//    private final static int TG_ANSWER_LIMIT = 4000 - 20;
     private final ChatClientService chatClient;
     private final TelegramClient telegramClient;
     private final ChatSettingsQuery botSettings;
@@ -39,20 +35,21 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
                 .build();
         var replyMessage = telegramClient.execute(reply);
 
-        String answer = getGptAnswer(chatId, data.getText());
+        TgAnswer answer = getGptAnswer(chatId, data.getText(), data.getFrom().getUserName());
 
         // delete quick reply
         var delCommand = new DeleteMessageCommand(telegramClient);
         delCommand.execute(replyMessage);
 
-        if (answer.length() > TG_ANSWER_LIMIT) {
-            sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
-        } else {
+        // TODO send fragments
+//        if (answer.length() > TG_ANSWER_LIMIT) {
+//            sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
+//        } else {
             sendReply(chatId, messageId, answer);
-        }
+//        }
     }
 
-    private void sendReply(Long chatId, Integer messageId, String answer) throws TelegramApiException {
+    private void sendReply(Long chatId, Integer messageId, TgAnswer answer) throws TelegramApiException {
         var msgBuilder = SendMessage.builder().chatId(chatId);
 
         if (messageId != null && botSettings.getUseReply(chatId)) {
@@ -61,31 +58,30 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
         }
 
         if (botSettings.getUseMarkup(chatId)) {
-            //            var escapedText = escape(answer);
-            var escapedText = answer;
-            msgBuilder.parseMode(ParseMode.HTML)
+            var escapedText = answer.toText(this::escape);
+            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
                     .text(escapedText);
         } else {
-            msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));
+            msgBuilder.text("no clue");
         }
 
         var reply = msgBuilder.build();
         telegramClient.execute(reply);
     }
 
-    private void sendReplyFragments(Long chatId, Integer messageId, String answer, int maxLenght) throws TelegramApiException {
-        boolean sentReply = false;
-        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLenght + "})(?=\\s|$)", Pattern.DOTALL);
-        Matcher m = p.matcher(answer);
-        while (m.find()) {
-            String fragment = m.group(1);
-            sendReply(chatId, sentReply ? null : messageId, fragment);
-            sentReply = true;
-        }
-    }
+//    private void sendReplyFragments(Long chatId, Integer messageId, String answer, int maxLenght) throws TelegramApiException {
+//        boolean sentReply = false;
+//        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLenght + "})(?=\\s|$)", Pattern.DOTALL);
+//        Matcher m = p.matcher(answer);
+//        while (m.find()) {
+//            String fragment = m.group(1);
+//            sendReply(chatId, sentReply ? null : messageId, fragment);
+//            sentReply = true;
+//        }
+//    }
 
-    String getGptAnswer(Long chatId, String userMessage) {
-        return chatClient.call(chatId, userMessage);
+    TgAnswer getGptAnswer(Long chatId, String userMessage, String userName) {
+        return chatClient.call(chatId, userMessage, userName);
     }
 
     private void logUserMessage(Message data) {
