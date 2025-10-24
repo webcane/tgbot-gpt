@@ -3,6 +3,7 @@ This is a Telegram bot designed to serve as an GPT assistant.
 It was created using Java 21, utilizing the [Spring AI](https://spring.io/projects/spring-ai) framework and the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The bot operates with 
  - [gpt-4.1-mini](https://platform.openai.com/docs/models/gpt-4.1-mini) large language model from [OpenAI](https://platform.openai.com/docs/overview)
  - [gemini-2.0-flash](https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) from [Google AI](https://ai.google/)
+ - [DeepSeek-V3.2-Exp](https://api-docs.deepseek.com/quick_start/pricing) from [DeepSeek](https://deepseek.com/) 
 
 # Github actions build
 ![Gradle Build](https://github.com/webcane/tgbot-gpt/workflows/Build%20and%20Push%20to%20ECR/badge.svg)
@@ -41,6 +42,8 @@ It was created using Java 21, utilizing the [Spring AI](https://spring.io/projec
     # Gemini
     GOOGLE_CLOUD_PROJECT_ID=
     GOOGLE_CLOUD_REGION=europe-west1
+    # DeepSeek
+    DEEPSEEK_API_KEY=
     ```
 2. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
@@ -124,4 +127,3 @@ models - choose preferred ai model
 # Changelog
 
 # Credits
-
