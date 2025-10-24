@@ -64,7 +64,7 @@ public class TgBot implements SpringLongPollingBot, LongPollingSingleThreadUpdat
             try {
                 // user chat message
                 if (isUserChatMessage(userMessage)) {
-                    var userCommand = isVoiceMessage(userMessage) ? "/voice" : userMessage.getText();
+                    var userCommand = isVoiceMessage(userMessage) ? "/voice-gpt" : userMessage.getText();
                     var command = commandFactory.create(userCommand);
                     command.execute(userMessage);
                 }

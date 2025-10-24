@@ -17,10 +17,10 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @RequiredArgsConstructor
 class ReplyGptCommand implements ChatCommand<Message>, Utils {
 
-//    private final static int TG_ANSWER_LIMIT = 4000 - 20;
-    private final ChatClientService chatClient;
-    private final TelegramClient telegramClient;
-    private final ChatSettingsQuery botSettings;
+    //    private final static int TG_ANSWER_LIMIT = 4000 - 20;
+    final ChatClientService chatClient;
+    final TelegramClient telegramClient;
+    final ChatSettingsQuery botSettings;
 
     @Override
     public void execute(Message data) throws TelegramApiException {
@@ -35,7 +35,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
                 .build();
         var replyMessage = telegramClient.execute(reply);
 
-        TgAnswer answer = getGptAnswer(chatId, data.getText(), data.getFrom().getUserName());
+        TgAnswer answer = getGptAnswer(chatId, getQuestion(data), getUserName(data));
 
         // delete quick reply
         var delCommand = new DeleteMessageCommand(telegramClient);
@@ -45,11 +45,11 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
 //        if (answer.length() > TG_ANSWER_LIMIT) {
 //            sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
 //        } else {
-            sendReply(chatId, messageId, answer);
+        sendReply(chatId, messageId, answer);
 //        }
     }
 
-    private void sendReply(Long chatId, Integer messageId, TgAnswer answer) throws TelegramApiException {
+    void sendReply(Long chatId, Integer messageId, TgAnswer answer) throws TelegramApiException {
         var msgBuilder = SendMessage.builder().chatId(chatId);
 
         if (messageId != null && botSettings.getUseReply(chatId)) {
@@ -59,6 +59,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
 
         if (botSettings.getUseMarkup(chatId)) {
             var escapedText = answer.toText(this::escape);
+            log.debug("escaped answer: {}", escapedText);
             msgBuilder.parseMode(ParseMode.MARKDOWNV2)
                     .text(escapedText);
         } else {
@@ -80,11 +81,19 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
 //        }
 //    }
 
-    TgAnswer getGptAnswer(Long chatId, String userMessage, String userName) {
+    String getUserName(Message data) {
+        return data.getFrom().getUserName();
+    }
+
+    String getQuestion(Message data) throws TelegramApiException {
+        return data.getText();
+    }
+
+    TgAnswer getGptAnswer(Long chatId, String userMessage, String userName) throws TelegramApiException {
         return chatClient.call(chatId, userMessage, userName);
     }
 
-    private void logUserMessage(Message data) {
+    void logUserMessage(Message data) {
         String user_first_name = data.getChat().getFirstName();
         String user_last_name = data.getChat().getLastName();
         String user_username = data.getChat().getUserName();

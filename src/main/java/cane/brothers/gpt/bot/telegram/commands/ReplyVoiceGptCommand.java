@@ -3,16 +3,12 @@ package cane.brothers.gpt.bot.telegram.commands;
 import cane.brothers.gpt.bot.AppProperties;
 import cane.brothers.gpt.bot.ai.ChatClientService;
 import cane.brothers.gpt.bot.ai.ChatVoiceClientService;
-import cane.brothers.gpt.bot.telegram.TgAnswer;
-import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
-import lombok.RequiredArgsConstructor;
+import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -30,87 +26,35 @@ import java.nio.file.Paths;
 
 
 @Slf4j
-@Component("/voice")
-@RequiredArgsConstructor
-class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
+@Component("/voice-gpt")
+class ReplyVoiceGptCommand extends ReplyGptCommand {
 
-//    private final static int TG_ANSWER_LIMIT = 4000 - 20;
-    private final ChatClientService chatClient;
-    private final ChatVoiceClientService voiceClient;
-    private final TelegramClient telegramClient;
-    private final ChatSettings botSettings;
-    private final AppProperties properties;
+    //    private final static int TG_ANSWER_LIMIT = 4000 - 20;
+    final ChatVoiceClientService voiceClient;
+    final AppProperties properties;
 
+    public ReplyVoiceGptCommand(ChatClientService chatClient,
+                                TelegramClient telegramClient,
+                                ChatSettingsQuery botSettings,
+                                ChatVoiceClientService voiceClient,
+                                AppProperties properties) {
+        super(chatClient, telegramClient, botSettings);
+        this.voiceClient = voiceClient;
+        this.properties = properties;
+    }
 
     @Override
-    public void execute(Message data) throws TelegramApiException {
-        Long chatId = data.getChatId();
-        Integer messageId = data.isReply() ? data.getReplyToMessage().getMessageId() : data.getMessageId();
-        logUserMessage(data);
-
-        // quick reply
-        var reply = SendMessage.builder().chatId(chatId)
-                .replyToMessageId(messageId)
-                .text("already working on it...")
-                .build();
-        var replyMessage = telegramClient.execute(reply);
-
+    String getQuestion(Message data) throws TelegramApiException {
         // download voice
         GetFile getFileMethod = new GetFile(data.getVoice().getFileId());
         var file = telegramClient.execute(getFileMethod);
         log.debug(file.toString());
 
         var voiceFileResource = downloadFileResource(file);
-        if (voiceFileResource != null) {
-            // voice to text
-            var voicePrompt = voiceClient.transcribe(voiceFileResource);
-            TgAnswer answer = getGptAnswer(chatId, voicePrompt, data.getFrom().getUserName());
-            // log.debug("reply answer: {}", answer);
 
-            // delete quick reply
-            var delCommand = new DeleteMessageCommand(telegramClient);
-            delCommand.execute(replyMessage);
-
-            // TODO send fragments
-//            if (answer.length() > TG_ANSWER_LIMIT) {
-//                sendReplyFragments(chatId, messageId, answer, TG_ANSWER_LIMIT);
-//            } else {
-                sendReply(chatId, messageId, answer);
-//            }
-        }
+        // voice to text
+        return voiceClient.transcribe(voiceFileResource);
     }
-
-    private void sendReply(Long chatId, Integer messageId, TgAnswer answer) throws TelegramApiException {
-        var msgBuilder = SendMessage.builder().chatId(chatId);
-
-        if (messageId != null && botSettings.getUseReply(chatId)) {
-            // send reply message
-            msgBuilder.replyToMessageId(messageId);
-        }
-
-        if (botSettings.getUseMarkup(chatId)) {
-            var escapedText = answer.toText(this::escape);
-            log.debug("escaped answer: {}", escapedText);
-            msgBuilder.parseMode(ParseMode.MARKDOWNV2)
-                    .text(escapedText);
-        } else {
-            msgBuilder.text("no clue");
-        }
-
-        var reply = msgBuilder.build();
-        telegramClient.execute(reply);
-    }
-
-//    private void sendReplyFragments(Long chatId, Integer messageId, String answer, int maxLength) throws TelegramApiException {
-//        boolean sentReply = false;
-//        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLength + "})(?=\\s|$)", Pattern.DOTALL);
-//        Matcher m = p.matcher(answer);
-//        while (m.find()) {
-//            String fragment = m.group(1);
-//            sendReply(chatId, sentReply ? null : messageId, fragment);
-//            sentReply = true;
-//        }
-//    }
 
     Resource downloadFileResource(File file) {
         String fileUrl = file.getFileUrl(properties.token());
@@ -149,17 +93,4 @@ class ReplyVoiceGptCommand implements ChatCommand<Message>, Utils {
             throw new RuntimeException("unable to download file %s".formatted(file), ex);
         }
     }
-
-    TgAnswer getGptAnswer(Long chatId, String userMessage, String userName) {
-        return chatClient.call(chatId, userMessage, userName);
-    }
-
-    private void logUserMessage(Message data) {
-        String user_first_name = data.getChat().getFirstName();
-        String user_last_name = data.getChat().getLastName();
-        String user_username = data.getChat().getUserName();
-        long user_id = data.getChat().getId();
-        log.info("username={} firstname={} lastname={} id={}", user_username, user_first_name, user_last_name, user_id);
-    }
-
 }

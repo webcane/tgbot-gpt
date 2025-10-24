@@ -21,9 +21,9 @@ public class ChatClientService {
     /**
      * Get answer from AI model
      *
-     * @param chatId telegram chat Id
+     * @param chatId      telegram chat Id
      * @param userMessage userMessage user prompt
-     * @param userName userName uses to provide extra details in case of error
+     * @param userName    userName uses to provide extra details in case of error
      * @return TgAnswer
      */
     public TgAnswer call(Long chatId, String userMessage, String userName) {
@@ -38,7 +38,7 @@ public class ChatClientService {
             return TgAnswer.builder().addPart(content).build();
         } catch (Exception ex) {
             log.error("AI error", ex);
-            var detailedMessage = isAdminUser(userName) ? ex.getCause().getMessage(): "";
+            var detailedMessage = isAdminUser(userName) ? ex.getCause().getMessage() : "" ;
             return TgAnswer.builder()
                     .addPart("An error occurred while processing the request to %s.\n".formatted(model))
                     .addPart("**>", false) // The expandable block quotation
@@ -48,14 +48,13 @@ public class ChatClientService {
     }
 
     String getSystemMessage(Long chatId) {
-        String systemMessage = "";
+        String systemMessage = "" ;
         if (botSettings.getUseMarkup(chatId)) {
-            systemMessage = """
-                    Formats all responses using Telegram-compatible HTML. When including source code, always wrap it\s
-in <pre><code>...</code></pre> tags to ensure proper display in Telegram messages. Avoid using Markdown syntax for\s
-code blocks. Use HTML tags like <b>, <i>, <u>, and ......</a> for emphasis, links, and styling. Ensure all formatting\s
-is valid and compatible with Telegram's HTML parse_mode.
-""";
+            systemMessage = "Your entire response must be compatible with Telegram's markdown V2 formatting rules." ;
+            // Use markdown V2 syntax for bold, italics, underline, strikethrough, inline code, code blocks, links, lists, and blockquotes.
+            // When providing code snippets, always use triple backticks (```) to denote code blocks and specify the programming language if possible.
+            // Avoid using unsupported HTML tags or attributes.
+            // Escape all special characters as per Telegram's markdown V2 requirements. "
             log.debug("system message used. \"{}\"", systemMessage);
         }
         return systemMessage;
