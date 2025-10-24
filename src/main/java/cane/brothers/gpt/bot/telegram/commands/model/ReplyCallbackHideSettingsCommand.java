@@ -1,5 +1,8 @@
-package cane.brothers.gpt.bot.telegram.commands;
+package cane.brothers.gpt.bot.telegram.commands.model;
 
+import cane.brothers.gpt.bot.telegram.commands.ChatCallbackCommandFactory;
+import cane.brothers.gpt.bot.telegram.commands.ChatCommand;
+import cane.brothers.gpt.bot.telegram.commands.DeleteMessageCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

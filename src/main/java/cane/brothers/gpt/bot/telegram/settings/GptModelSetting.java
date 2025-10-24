@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GptModelSetting implements CommandSetting<GptModel> {
-    MODEL(GptModel.GEMINI);
+    MODEL(GptModel.OPENAI);
 
     private final GptModel defaultValue;
 

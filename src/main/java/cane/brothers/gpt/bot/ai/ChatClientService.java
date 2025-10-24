@@ -38,7 +38,10 @@ public class ChatClientService {
             return TgAnswer.builder().addPart(content).build();
         } catch (Exception ex) {
             log.error("AI error", ex);
-            var detailedMessage = isAdminUser(userName) ? ex.getCause().getMessage() : "" ;
+            String detailedMessage = "";
+            if (isAdminUser(userName)) {
+                detailedMessage = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
+            }
             return TgAnswer.builder()
                     .addPart("An error occurred while processing the request to %s.\n".formatted(model))
                     .addPart("**>", false) // The expandable block quotation

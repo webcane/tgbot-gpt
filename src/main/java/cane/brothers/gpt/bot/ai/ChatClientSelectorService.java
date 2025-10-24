@@ -16,10 +16,14 @@ public class ChatClientSelectorService {
     @Qualifier("geminiChatClient")
     private final ChatClient geminiChatClient;
 
+    @Qualifier("deepSeekChatClient")
+    private final ChatClient deepSeekChatClient;
+
     public ChatClient getClientByModel(GptModel model) {
         return switch (model) {
             case GEMINI -> geminiChatClient;
             case OPENAI -> openAiChatClient;
+            case DEEPSEEK -> deepSeekChatClient;
             default -> throw new IllegalArgumentException("Unknown model: " + model);
         };
     }

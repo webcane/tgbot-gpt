@@ -5,5 +5,6 @@ package cane.brothers.gpt.bot.telegram.settings;
  */
 public enum GptModel {
     OPENAI,
-    GEMINI
-} 
+    GEMINI,
+    DEEPSEEK
+}

@@ -44,9 +44,13 @@ class SettingsModelsCommand implements ChatCommand<Message> {
         var geminiButton = InlineKeyboardButton.builder().text("Gemini")
                 .callbackData("/callback_model_gemini").build();
 
+        var deepseekButton = InlineKeyboardButton.builder().text("DeepSeek")
+                .callbackData("/callback_model_deepseek").build();
+
         return InlineKeyboardMarkup.builder()
                 .keyboardRow(new InlineKeyboardRow(openaiButton))
                 .keyboardRow(new InlineKeyboardRow(geminiButton))
+                .keyboardRow(new InlineKeyboardRow(deepseekButton))
                 .build();
     }
 }
