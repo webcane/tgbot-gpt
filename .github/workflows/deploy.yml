@@ -91,6 +91,6 @@ jobs:
               --instance-ids "${{ env.INSTANCE_ID }}" \
               --document-name "AWS-RunShellScript" \
               --comment "Deploy ${{ env.PROJECT }}" \
-              --parameters commands=["cd /home/ubuntu/${{ env.PROJECT }}", "./deploy.sh"] \
+              --parameters 'commands=["cd /home/ubuntu/${{ env.PROJECT }}", "./deploy.sh"]' \
               --cloud-watch-output-config "CloudWatchLogGroupName=/aws/ssm/${{ env.PROJECT }}-deploy-logs,CloudWatchOutputEnabled=true" \
               --region "${{ env.AWS_REGION }}"
