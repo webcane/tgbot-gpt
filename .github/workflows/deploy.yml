@@ -85,12 +85,24 @@ jobs:
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.PROJECT }}-ec2" --query "Reservations[*].Instances[*].InstanceId" --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
-      - name: Deploy Application to EC2
+      - name: Run deploy command on EC2 via SSM
         run: |
-          aws ssm send-command \
+          SEND_COMMAND_OUTPUT=$(aws ssm send-command \
               --instance-ids "${{ env.INSTANCE_ID }}" \
               --document-name "AWS-RunShellScript" \
               --comment "Deploy ${{ env.PROJECT }}" \
               --parameters 'commands=["cd /home/ubuntu/${{ env.PROJECT }}", "./deploy.sh"]' \
               --cloud-watch-output-config "CloudWatchLogGroupName=/aws/ssm/${{ env.PROJECT }}-deploy-logs,CloudWatchOutputEnabled=true" \
-              --region "${{ env.AWS_REGION }}"
+              --region "${{ env.AWS_REGION }}")
+          echo "$SEND_COMMAND_OUTPUT"
+          COMMAND_ID=$(echo "$SEND_COMMAND_OUTPUT" | jq -r '.Command.CommandId')
+          echo "COMMAND_ID=$COMMAND_ID" >> $GITHUB_ENV
+
+      - name: Check deploy command result
+        run: |
+          aws ssm list-command-invocations \
+            --command-id "${{ env.COMMAND_ID }}" \
+            --instance-id "${{ env.INSTANCE_ID }}" \
+            --details \
+            --region "${{ env.AWS_REGION }}"
+          
