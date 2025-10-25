@@ -6,6 +6,10 @@ on:
   pull_request:
     branches:
       - master
+  workflow_run:
+    workflows: [ "Build and Push to ECR" ]
+    types:
+      - completed
   # Allows manually triggering the workflow from GitHub Actions UI
   workflow_dispatch:
 env:
