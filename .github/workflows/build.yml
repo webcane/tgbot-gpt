@@ -6,23 +6,18 @@ on:
   pull_request:
     branches:
       - master
-  # Allows manually triggering the workflow from GitHub Actions UI
   workflow_dispatch:
 env:
   ECR_REPOSITORY: ${{ github.event.repository.name }}
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-22.04
     environment: aws
     env:
       JAVA_VERSION: '21'
-    permissions:
-      id-token: write # This is absolutely necessary for OIDC!
-      contents: read  # Access to check out code and install dependencies
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v5
 
@@ -30,38 +25,55 @@ jobs:
         id: get_short_sha
         run: echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
-      - name: Dump github context
-        run: echo "$GITHUB_CONTEXT"
-        shell: bash
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+      - name: Build Docker image
+        run: |
+          SHA_IMAGE_URI="${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+          LATEST_IMAGE_URI="${{ env.ECR_REPOSITORY }}:latest"
+          docker build -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
+          docker save $SHA_IMAGE_URI -o image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar
+
+  push-ecr:
+    runs-on: ubuntu-22.04
+    environment: aws
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
 
       - name: Configure AWS credentials (using OIDC)
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          # Specify the ARN of the IAM role that GitHub Actions will attempt to assume
-          # Use the ARN you obtained from `terraform output github_actions_to_ecr_role_arn`
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.ECR_REPOSITORY }}-github-actions-ecr-role
           aws-region: ${{ env.AWS_REGION }}
-          # Optionally: you can specify role-duration-seconds, role-session-name, etc.
-          # Optional, for better logging in CloudTrail
           role-session-name: GitHubActionsSession
 
       - name: Login to Amazon ECR
         id: login-ecr
-        # Authenticate with ECR
         uses: aws-actions/amazon-ecr-login@v2
-        # The output of this step contains the token and ECR URI
 
-      - name: Build and push Docker image to ECR
+      - name: Load Docker image
+        run: |
+          docker load -i image.tar
+
+      - name: Push Docker image to ECR
         env:
-          # Get the registry URI from the previous step
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          SHA_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" 
+          SHA_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
           LATEST_IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest"
-          echo $SHA_IMAGE_URI
-          docker build -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
+          docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} $SHA_IMAGE_URI
+          docker tag ${{ env.ECR_REPOSITORY }}:latest $LATEST_IMAGE_URI
           docker push $SHA_IMAGE_URI
           docker push $LATEST_IMAGE_URI
 
@@ -70,14 +82,21 @@ jobs:
           echo ${{ env.IMAGE_TAG }}
           aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG
 
-  deploy:
+  deploy-ec2:
     runs-on: ubuntu-22.04
     environment: aws
-    needs: build-and-push
+    needs: push-ecr
     permissions:
-      id-token: write # This is absolutely necessary for OIDC!
-      contents: read  # Access to check out code and install dependencies
+      id-token: write
+      contents: read
     steps:
+      - name: Configure AWS credentials (using OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.ECR_REPOSITORY }}-github-actions-ecr-role
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActionsSession
+
       - name: Get EC2 Instance ID
         id: get_ec2_instance
         run: |
