@@ -1,6 +1,7 @@
 package cane.brothers.gpt.bot.ai.openai;
 
 import io.micrometer.observation.ObservationRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
@@ -29,6 +30,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Objects;
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties({OpenAiConnectionProperties.class, OpenAiChatProperties.class})
 class OpenAiConfig {
@@ -90,6 +92,7 @@ class OpenAiConfig {
     @Bean("openAiChatClient")
     ChatClient chatClient(@Qualifier("openAiChatClientBuilder") ChatClient.Builder builder,
                           SimpleLoggerAdvisor loggerAdvisor) {
+        log.debug("create Open AI ChatClient");
         return builder
                 .defaultAdvisors(loggerAdvisor)
                 .build();
@@ -110,6 +113,7 @@ class OpenAiConfig {
     OpenAiAudioTranscriptionModel openAiAudioTranscriptionModel(OpenAiAudioApi openAiAudioApi,
                                                                 OpenAiAudioTranscriptionProperties transcriptionProperties,
                                                                 RetryTemplate retryTemplate) {
+        log.debug("create Open AI Voice ChatClient");
         return new OpenAiAudioTranscriptionModel(openAiAudioApi,
                 transcriptionProperties.getOptions(),
                 retryTemplate);

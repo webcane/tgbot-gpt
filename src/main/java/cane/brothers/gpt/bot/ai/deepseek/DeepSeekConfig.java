@@ -1,6 +1,7 @@
 package cane.brothers.gpt.bot.ai.deepseek;
 
 import io.micrometer.observation.ObservationRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties({DeepSeekConnectionProperties.class, DeepSeekChatProperties.class})
 public class DeepSeekConfig {
@@ -49,6 +51,7 @@ public class DeepSeekConfig {
     @Bean("deepSeekChatClient")
     ChatClient chatClient(@Qualifier("deepSeekChatClientBuilder") ChatClient.Builder builder,
                           SimpleLoggerAdvisor loggerAdvisor) {
+        log.debug("create DeepSeek ChatClient");
         return builder
                 .defaultAdvisors(loggerAdvisor)
                 .build();

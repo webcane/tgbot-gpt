@@ -21,8 +21,8 @@ public class ChatClientSelectorService {
 
     public ChatClient getClientByModel(GptModel model) {
         return switch (model) {
-            case GEMINI -> geminiChatClient;
             case OPENAI -> openAiChatClient;
+            case GEMINI -> geminiChatClient;
             case DEEPSEEK -> deepSeekChatClient;
             default -> throw new IllegalArgumentException("Unknown model: " + model);
         };

@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vertexai.Transport;
 import com.google.cloud.vertexai.VertexAI;
 import io.micrometer.observation.ObservationRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.observation.ChatClientObservationConvention;
@@ -28,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.Objects;
 
+@Slf4j
 @Configuration
 @EnableConfigurationProperties({VertexAiGeminiConnectionProperties.class, VertexAiGeminiChatProperties.class})
 class GeminiConfig {
@@ -95,6 +97,7 @@ class GeminiConfig {
     @Bean("geminiChatClient")
     ChatClient chatClient(@Qualifier("geminiChatClientBuilder") ChatClient.Builder builder,
                           SimpleLoggerAdvisor loggerAdvisor) {
+        log.debug("create Gemini ChatClient");
         return builder
                 .defaultAdvisors(loggerAdvisor)
                 .build();
