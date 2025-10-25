@@ -69,3 +69,27 @@ jobs:
         run: |
           echo ${{ env.IMAGE_TAG }}
           aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG
+
+  deploy:
+    runs-on: ubuntu-22.04
+    environment: aws
+    needs: build-and-push
+    permissions:
+      id-token: write # This is absolutely necessary for OIDC!
+      contents: read  # Access to check out code and install dependencies
+    steps:
+      - name: Get EC2 Instance ID
+        id: get_ec2_instance
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.PROJECT }}-ec2" --query "Reservations[*].Instances[*].InstanceId" --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+
+      - name: Deploy Application to EC2
+        run: |
+          aws ssm send-command \
+              --instance-ids ${{ env.INSTANCE_ID }} \
+              --document-name "AWS-RunShellScript" \
+              --comment "Deploy ${{ env.PROJECT }}" \
+              --parameters commands=["cd /home/ubuntu/${{ env.PROJECT }}", "./deploy.sh"] \
+              --cloud-watch-output-config "CloudWatchLogGroupName=/aws/ssm/${{ env.PROJECT }}-deploy-logs,CloudWatchOutputEnabled=true" \
+              --region "${{ env.AWS_REGION }}"
