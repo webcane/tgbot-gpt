@@ -1,4 +1,4 @@
-name: Build and Push to ECR
+name: Build, Push to ECR and Deploy to EC2
 on:
   push:
     branches:
