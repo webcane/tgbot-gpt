@@ -190,12 +190,12 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   client_id_list = [
     "sts.amazonaws.com"
   ]
-  # Список отпечатков (thumbprints) для корневых сертификатов провайдера OIDC.
-  # Их можно получить, используя команду openssl или из документации AWS/GitHub.
-  # Эти значения стабильны, но могут меняться со временем.
-  # Актуальный список можно найти здесь:
+  # List of thumbprints for root CAs used by GitHub Actions OIDC provider
+  # request it using openssl or find in AWS/GitHub documentation
+  # these values are stable but may change over time
+  # up-to-date list can be found here:
   # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#configuring-aws-with-openid-connect
-  # или получить через 'openssl s_client -showcerts -verify 5 -connect token.actions.githubusercontent.com:443 < /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ print $0 }' | openssl x509 -fingerprint -noout'
+  # or get it via 'openssl s_client -showcerts -verify 5 -connect token.actions.githubusercontent.com:443 < /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ print $0 }' | openssl x509 -fingerprint -noout'
   thumbprint_list = [
     "7560d6f40fa55195f740ee2b1b7c0b4836cbe103",
     "a031c46782e0e6c694c7739af3c983a93f00ef16"
@@ -209,8 +209,8 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
 }
 
 # 2. Create the IAM role
-resource "aws_iam_role" "github_actions_ecr" {
-  name = "${local.ecr_repository_name}-github-actions-ecr-role"
+resource "aws_iam_role" "github_actions" {
+  name = "${local.ecr_repository_name}-github-actions-role"
 
   # Policy that allows OIDC authentication from GitHub Actions
   assume_role_policy = jsonencode({
@@ -252,7 +252,7 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
-          "ecr:GetAuthorizationToken", # Needed for authentication
+          # "ecr:GetAuthorizationToken", # Needed for authentication
           "ecr:DescribeImages"
         ],
         Resource = module.ecr_repository.repository_arn # Apply permissions only to our specific ECR repo
@@ -270,13 +270,71 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
 
 # 4. Attach the policy to the role
 resource "aws_iam_role_policy_attachment" "github_actions_ecr_attachment" {
-  role       = aws_iam_role.github_actions_ecr.name
+  role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_actions_ecr_policy.arn
 }
 
-# --- Присоединение управляемой политики SSM к EC2 ---
-# Политика 'AmazonSSMManagedInstanceCore' предоставляет все необходимые разрешения
-# для SSM Agent, чтобы он мог регистрироваться в SSM и выполнять команды.
+# IAM Policy for GitHub Actions to EC2 instances
+resource "aws_iam_policy" "github_actions_ec2_policy" {
+  name        = "${local.ecr_repository_name}-github-actions-ec2-policy"
+  description = "Policy to allow GitHub Actions to describe EC2 instances for ${local.ecr_repository_name}"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeInstances",
+        ],
+        Resource = "*"
+      },
+      # The GetAuthorizationToken action is a global action and does not support resource-level permissions.
+      # It must be allowed for all resources (*).
+      {
+        Effect   = "Allow",
+        Action   = "ecr:GetAuthorizationToken",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_ec2_attachment" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_ec2_policy.arn
+}
+
+# IAM Policy for GitHub Actions to send SSM commands to EC2
+resource "aws_iam_policy" "github_actions_ssm_policy" {
+  name        = "${local.ecr_repository_name}-github-actions-ssm-policy"
+  description = "Policy to allow GitHub Actions to send SSM commands to EC2 for ${local.ecr_repository_name}"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:SendCommand",
+          "ssm:ListCommands",
+          "ssm:ListCommandInvocations"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_ssm_attachment" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_ssm_policy.arn
+}
+
+
+# attach managed policy to the EC2 IAM role created by the module
+# AmazonSSMManagedInstanceCore policy allow all necessary actions for SSM Agent
+# to register with SSM and execute commands.
 resource "aws_iam_role_policy_attachment" "ec2_ssm_policy_attachment" {
   role       = module.tgbot-ec2.iam_role_name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -287,7 +345,7 @@ resource "aws_iam_role_policy_attachment" "ec2_ecr_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
-# IAM Policy для чтения параметра SSM
+# IAM Policy to read SSM parameters
 resource "aws_iam_policy" "kms_policy" {
   name        = "ssm-google-credentials-decrypt-policy"
   description = "Allows EC2 to decrypt Google credentials from SSM Parameter Store"
@@ -297,10 +355,10 @@ resource "aws_iam_policy" "kms_policy" {
       {
         Effect = "Allow",
         Action = [
-          # Требуется, если ваш SecureString зашифрован KMS ключом (по умолчанию это AWS managed key)
+          # required to decrypt SecureString parameters encrypted with KMS (by default it's AWS managed key)
           "kms:Decrypt"
         ],
-        # Можно ограничить конкретным KMS ключом, если используете свой
+        # Restrict to all KMS keys in the account and region
         Resource = "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/*"
       }
     ]

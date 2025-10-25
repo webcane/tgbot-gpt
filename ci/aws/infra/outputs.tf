@@ -35,7 +35,7 @@ output "aws_repository_name" {
 }
 
 output "github_actions_to_ecr_role_arn" {
-  value = aws_iam_role.github_actions_ecr.arn
+  value = aws_iam_role.github_actions.arn
 }
 
 output "aws_iam_openid_connect_provider_arn" {
