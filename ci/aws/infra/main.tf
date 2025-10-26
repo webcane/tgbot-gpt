@@ -210,7 +210,7 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
 
 # 2. Create the IAM role
 resource "aws_iam_role" "github_actions" {
-  name = "${local.ecr_repository_name}-github-actions-role"
+  name = "${var.app_name}-github-actions-role"
 
   # Policy that allows OIDC authentication from GitHub Actions
   assume_role_policy = jsonencode({
@@ -236,8 +236,8 @@ resource "aws_iam_role" "github_actions" {
 
 # 3. Create an IAM policy with ECR permissions
 resource "aws_iam_policy" "github_actions_ecr_policy" {
-  name        = "${local.ecr_repository_name}-github-actions-ecr-policy"
-  description = "Policy to allow GitHub Actions to push/pull from ECR for ${local.ecr_repository_name}"
+  name        = "${var.app_name}-github-actions-ecr-policy"
+  description = "Policy to allow GitHub Actions to push/pull from ECR for ${var.app_name}"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -252,7 +252,6 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
-          # "ecr:GetAuthorizationToken", # Needed for authentication
           "ecr:DescribeImages"
         ],
         Resource = module.ecr_repository.repository_arn # Apply permissions only to our specific ECR repo
@@ -276,8 +275,8 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecr_attachment" {
 
 # IAM Policy for GitHub Actions to EC2 instances
 resource "aws_iam_policy" "github_actions_ec2_policy" {
-  name        = "${local.ecr_repository_name}-github-actions-ec2-policy"
-  description = "Policy to allow GitHub Actions to describe EC2 instances for ${local.ecr_repository_name}"
+  name        = "${var.app_name}-github-actions-ec2-policy"
+  description = "Policy to allow GitHub Actions to describe EC2 instances for ${var.app_name}"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -307,8 +306,8 @@ resource "aws_iam_role_policy_attachment" "github_actions_ec2_attachment" {
 
 # IAM Policy for GitHub Actions to send SSM commands to EC2
 resource "aws_iam_policy" "github_actions_ssm_policy" {
-  name        = "${local.ecr_repository_name}-github-actions-ssm-policy"
-  description = "Policy to allow GitHub Actions to send SSM commands to EC2 for ${local.ecr_repository_name}"
+  name        = "${var.app_name}-github-actions-ssm-policy"
+  description = "Policy to allow GitHub Actions to send SSM commands to EC2 for ${var.app_name}"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -329,6 +328,33 @@ resource "aws_iam_policy" "github_actions_ssm_policy" {
 resource "aws_iam_role_policy_attachment" "github_actions_ssm_attachment" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_actions_ssm_policy.arn
+}
+
+# IAM Policy for GitHub Actions to write logs
+resource "aws_iam_policy" "github_actions_logs_policy" {
+  name        = "${var.app_name}-github-actions-logs-policy"
+  description = "Policy to allow GitHub Actions to write logs"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:PutLogEvents",
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_logs_attachment" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_logs_policy.arn
 }
 
 
@@ -368,6 +394,15 @@ resource "aws_iam_policy" "kms_policy" {
 resource "aws_iam_role_policy_attachment" "ec2_kms_policy_attachment" {
   role       = module.tgbot-ec2.iam_role_name
   policy_arn = aws_iam_policy.kms_policy.arn
+}
+
+resource "aws_cloudwatch_log_group" "ssm_deploy_logs" {
+  name              = "/aws/ssm/${var.app_name}-deploy-logs"
+  retention_in_days = 30
+  tags = {
+    Terraform = "true"
+    Project   = var.app_name
+  }
 }
 
 
