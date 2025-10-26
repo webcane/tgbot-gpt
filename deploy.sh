@@ -49,6 +49,8 @@ if [ $? -ne 0 ]; then
 fi
 echo "Existing services stopped." >> "$LOG_FILE"
 
+echo "Pull the latest image from ECR" >> "$LOG_FILE"
+sudo -u ubuntu docker compose pull
 
 echo "Starting new Docker Compose services..." >> "$LOG_FILE"
 sudo -u ubuntu docker compose up -d --force-recreate
