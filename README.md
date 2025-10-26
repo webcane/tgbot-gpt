@@ -17,9 +17,8 @@ the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The
 
 - Multi-models
 
-  Supports following AI models:
+  Supports following optional AI models:
     - OpenAI GPT-4.1-Mini
-    - OpenAI Whisper
     - Google Gemini-2.0-Flash
     - DeepSeek DeepSeek-V3.2-Exp
 
@@ -118,15 +117,25 @@ Create a `.env` file in the root directory and add the following:
     TGBOT_TOKEN=
     TGBOT_VOICE_PATH=
     TGBOT_ALLOWED_USER_NAMES=
+    ```
+2. Model configuration
+- if you want to use OpenAI model, add the following 
+    ```dotenv
     # Open AI
     OPENAI_API_KEY=
+    ```
+- if you want to use Gemini model, add the following 
+    ```dotenv
     # Gemini
     GOOGLE_CLOUD_PROJECT_ID=
     GOOGLE_CLOUD_REGION=europe-west1
+    ```
+- if you want to use DeepSeek model, add the following 
+    ```dotenv
     # DeepSeek
     DEEPSEEK_API_KEY=
     ```
-2. To run the telegram bot over proxy define following env vars additionally:
+3. To run the telegram bot over proxy define following env vars additionally:
     ```dotenv
     TGBOT_PROXY_HOSTNAME=
     TGBOT_PROXY_PORT=42567

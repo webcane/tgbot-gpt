@@ -12,6 +12,7 @@ import org.springframework.ai.model.deepseek.autoconfigure.DeepSeekChatPropertie
 import org.springframework.ai.model.deepseek.autoconfigure.DeepSeekConnectionProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(prefix = "deepseek", name = "api-key")
 @EnableConfigurationProperties({DeepSeekConnectionProperties.class, DeepSeekChatProperties.class})
 public class DeepSeekConfig {
 
@@ -48,7 +50,7 @@ public class DeepSeekConfig {
                 observationConvention.getIfUnique(() -> null));
     }
 
-    @Bean("deepSeekChatClient")
+    @Bean("deepseekChatClient")
     ChatClient chatClient(@Qualifier("deepSeekChatClientBuilder") ChatClient.Builder builder,
                           SimpleLoggerAdvisor loggerAdvisor) {
         log.debug("create DeepSeek ChatClient");

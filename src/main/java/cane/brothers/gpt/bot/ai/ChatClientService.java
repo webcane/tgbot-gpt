@@ -18,6 +18,10 @@ public class ChatClientService {
     private final ChatSettingsQuery botSettings;
     private final ChatClientSelectorService chatClientSelectorService;
 
+    public boolean hasClientForModel(GptModel model) {
+        return chatClientSelectorService.hasClientForModel(model);
+    }
+
     /**
      * Get answer from AI model
      *
@@ -38,7 +42,7 @@ public class ChatClientService {
             return TgAnswer.builder().addPart(content).build();
         } catch (Exception ex) {
             log.error("AI error", ex);
-            String detailedMessage = "";
+            String detailedMessage = "" ;
             if (isAdminUser(userName)) {
                 detailedMessage = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
             }
@@ -63,7 +67,7 @@ public class ChatClientService {
         return systemMessage;
     }
 
-    private boolean isAdminUser(String userName) {
+    boolean isAdminUser(String userName) {
         return properties.allowedUserNames() != null && !properties.allowedUserNames().isEmpty()
                 && properties.allowedUserNames().contains(userName);
     }

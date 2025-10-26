@@ -17,6 +17,7 @@ import org.springframework.ai.model.vertexai.autoconfigure.gemini.VertexAiGemini
 import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,7 @@ import java.util.Objects;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(prefix = "google.cloud", name = "project-id")
 @EnableConfigurationProperties({VertexAiGeminiConnectionProperties.class, VertexAiGeminiChatProperties.class})
 class GeminiConfig {
 
@@ -74,7 +76,7 @@ class GeminiConfig {
                 .defaultOptions(chatProperties.getOptions())
                 .toolCallingManager(toolCallingManager)
                 .toolExecutionEligibilityPredicate(vertexAiGeminiToolExecutionEligibilityPredicate
-                        .getIfUnique(() -> new DefaultToolExecutionEligibilityPredicate()))
+                        .getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
                 .retryTemplate(retryTemplate).observationRegistry(observationRegistry
                         .getIfUnique(() -> ObservationRegistry.NOOP))
                 .build();
