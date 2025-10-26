@@ -11,10 +11,6 @@ the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The
   from [Google AI](https://ai.google/)
 - [DeepSeek-V3.2-Exp](https://api-docs.deepseek.com/quick_start/pricing) from [DeepSeek](https://deepseek.com/)
 
-# Deploy status
-
-shows github actions workflow status
-
 ![Gradle Build](https://github.com/webcane/tgbot-gpt/workflows/Deploy/badge.svg)
 
 # Features
