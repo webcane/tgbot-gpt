@@ -70,15 +70,15 @@ class GeminiConfig {
                                                       RetryTemplate retryTemplate,
                                                       ObjectProvider<ObservationRegistry> observationRegistry,
                                                       ObjectProvider<ChatModelObservationConvention> observationConvention,
-                                                      ObjectProvider<ToolExecutionEligibilityPredicate> vertexAiGeminiToolExecutionEligibilityPredicate) {
+                                                      ObjectProvider<ToolExecutionEligibilityPredicate> toolExecutionEligibilityPredicate) {
         VertexAiGeminiChatModel chatModel = VertexAiGeminiChatModel.builder()
                 .vertexAI(vertexAi)
                 .defaultOptions(chatProperties.getOptions())
                 .toolCallingManager(toolCallingManager)
-                .toolExecutionEligibilityPredicate(vertexAiGeminiToolExecutionEligibilityPredicate
-                        .getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
-                .retryTemplate(retryTemplate).observationRegistry(observationRegistry
-                        .getIfUnique(() -> ObservationRegistry.NOOP))
+                .toolExecutionEligibilityPredicate(
+                        toolExecutionEligibilityPredicate.getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
+                .retryTemplate(retryTemplate)
+                .observationRegistry(observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP))
                 .build();
         Objects.requireNonNull(chatModel);
         observationConvention.ifAvailable(chatModel::setObservationConvention);

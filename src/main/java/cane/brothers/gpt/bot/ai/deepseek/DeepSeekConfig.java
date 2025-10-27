@@ -17,6 +17,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @Configuration
@@ -25,16 +27,20 @@ import org.springframework.context.annotation.Scope;
 public class DeepSeekConfig {
 
     @Bean
-    DeepSeekApi deepSeekApi(DeepSeekConnectionProperties properties) {
+    DeepSeekApi deepSeekApi(DeepSeekConnectionProperties properties,
+                            RestClient.Builder restClientBuilder,
+                            ResponseErrorHandler responseErrorHandler) {
         return DeepSeekApi.builder()
                 .apiKey(properties.getApiKey())
+                .restClientBuilder(restClientBuilder)
+                .responseErrorHandler(responseErrorHandler)
                 .build();
     }
 
     @Bean
-    DeepSeekChatModel deepSeekChatModel(DeepSeekChatProperties chatProperties, DeepSeekConnectionProperties connProperties) {
+    DeepSeekChatModel deepSeekChatModel(DeepSeekChatProperties chatProperties, DeepSeekApi deepSeekApi) {
         return DeepSeekChatModel.builder()
-                .deepSeekApi(deepSeekApi(connProperties))
+                .deepSeekApi(deepSeekApi)
                 .defaultOptions(chatProperties.getOptions())
                 .build();
     }
