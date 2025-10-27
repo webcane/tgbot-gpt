@@ -36,7 +36,7 @@ jobs:
           docker build -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
 
       - name: Configure AWS credentials (using OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.PROJECT }}-github-actions-role
           aws-region: ${{ env.AWS_REGION }}
@@ -73,7 +73,7 @@ jobs:
       contents: read
     steps:
       - name: Configure AWS credentials (using OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.PROJECT }}-github-actions-role
           aws-region: ${{ env.AWS_REGION }}
