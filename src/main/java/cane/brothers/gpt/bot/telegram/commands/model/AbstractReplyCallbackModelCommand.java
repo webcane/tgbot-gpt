@@ -2,12 +2,12 @@ package cane.brothers.gpt.bot.telegram.commands.model;
 
 import cane.brothers.gpt.bot.telegram.commands.ChatCallbackCommandFactory;
 import cane.brothers.gpt.bot.telegram.commands.ChatCommand;
-import cane.brothers.gpt.bot.telegram.commands.Utils;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import cane.brothers.gpt.bot.telegram.settings.GptModel;
 import cane.brothers.gpt.bot.telegram.settings.GptModelSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionService;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -18,11 +18,12 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-abstract class AbstractReplyCallbackModelCommand implements ChatCommand<CallbackQuery>, Utils {
+abstract class AbstractReplyCallbackModelCommand implements ChatCommand<CallbackQuery> {
 
     final ChatSettings botSettings;
     final TelegramClient telegramClient;
     final ChatCallbackCommandFactory callbackFactory;
+    final ConversionService convSvc;
 
     abstract GptModel getModel();
 
@@ -50,8 +51,9 @@ abstract class AbstractReplyCallbackModelCommand implements ChatCommand<Callback
         msgBuilder.replyToMessageId(messageId);
 
         if (botSettings.getUseMarkup(chatId)) {
+            var escapedText = convSvc.convert(answer, String.class);
             msgBuilder.parseMode(ParseMode.MARKDOWNV2)
-                    .text(escape(answer));
+                    .text(escapedText);
         } else {
             msgBuilder.text(Optional.ofNullable(answer).orElse("no clue"));
         }

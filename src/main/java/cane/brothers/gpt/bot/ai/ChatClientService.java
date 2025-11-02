@@ -57,11 +57,7 @@ public class ChatClientService {
     String getSystemMessage(Long chatId) {
         String systemMessage = "" ;
         if (botSettings.getUseMarkup(chatId)) {
-            systemMessage = "Your entire response must be compatible with Telegram's markdown V2 formatting rules." ;
-            // Use markdown V2 syntax for bold, italics, underline, strikethrough, inline code, code blocks, links, lists, and blockquotes.
-            // When providing code snippets, always use triple backticks (```) to denote code blocks and specify the programming language if possible.
-            // Avoid using unsupported HTML tags or attributes.
-            // Escape all special characters as per Telegram's markdown V2 requirements. "
+            systemMessage = "Your entire response must be compatible with CommonMark formatting rules." ;
             log.debug("system message used. \"{}\"", systemMessage);
         }
         return systemMessage;

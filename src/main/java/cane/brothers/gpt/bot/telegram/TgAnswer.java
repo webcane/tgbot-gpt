@@ -1,7 +1,5 @@
 package cane.brothers.gpt.bot.telegram;
 
-import cane.brothers.gpt.bot.telegram.commands.Utils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -10,7 +8,7 @@ import java.util.function.Function;
  * Represents an answer to be sent via Telegram, composed of multiple parts.
  * Each part can specify whether it should be escaped for Telegram formatting.
  */
-public record TgAnswer(List<TgAnswerPart> parts) implements Utils {
+public record TgAnswer(List<TgAnswerPart> parts) {
 
     public static Builder builder() {
         return new Builder();

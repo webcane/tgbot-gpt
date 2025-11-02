@@ -5,6 +5,7 @@ import cane.brothers.gpt.bot.telegram.TgAnswer;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,12 +16,13 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Slf4j
 @Component("/gpt")
 @RequiredArgsConstructor
-class ReplyGptCommand implements ChatCommand<Message>, Utils {
+class ReplyGptCommand implements ChatCommand<Message> {
 
     //    private final static int TG_ANSWER_LIMIT = 4000 - 20;
     final ChatClientService chatClient;
     final TelegramClient telegramClient;
     final ChatSettingsQuery botSettings;
+    final ConversionService convSvc;
 
     @Override
     public void execute(Message data) throws TelegramApiException {
@@ -58,7 +60,7 @@ class ReplyGptCommand implements ChatCommand<Message>, Utils {
         }
 
         if (botSettings.getUseMarkup(chatId)) {
-            var escapedText = answer.toText(this::escape);
+            var escapedText = answer.toText(text -> convSvc.convert(text, String.class));
             log.debug("escaped answer: {}", escapedText);
             msgBuilder.parseMode(ParseMode.MARKDOWNV2)
                     .text(escapedText);

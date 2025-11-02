@@ -60,12 +60,10 @@ dependencies {
 	implementation 'org.telegram:telegrambots-client:9.0.0'
 	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.0.0'
     // markdown to telegram
-    implementation "cane.brothers:markdown2tg:2.0.1"
+    implementation "cane.brothers:markdown2tg:2.0.2"
 //	implementation 'org.telegram:telegrambots-abilities:9.0.0'
 	// slf4j implementation
 	implementation 'ch.qos.logback:logback-classic:1.5.18'
-	// escape chars
-	implementation "org.apache.commons:commons-text:1.14.0"
 	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.38'
 	annotationProcessor 'org.projectlombok:lombok:1.18.38'

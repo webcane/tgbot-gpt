@@ -4,6 +4,7 @@ import cane.brothers.gpt.bot.telegram.commands.ChatCallbackCommandFactory;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettings;
 import cane.brothers.gpt.bot.telegram.settings.GptModel;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -11,12 +12,13 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @ConditionalOnProperty(prefix = "deepseek", name = "api-key")
 class ReplyCallbackModelDeepseekCommand extends AbstractReplyCallbackModelCommand {
 
-    public final static String NAME = "/callback_model_deepseek" ;
+    public final static String NAME = "/callback_model_deepseek";
 
     public ReplyCallbackModelDeepseekCommand(ChatSettings botSettings,
                                              TelegramClient telegramClient,
-                                             ChatCallbackCommandFactory callbackFactory) {
-        super(botSettings, telegramClient, callbackFactory);
+                                             ChatCallbackCommandFactory callbackFactory,
+                                             ConversionService convSvc) {
+        super(botSettings, telegramClient, callbackFactory, convSvc);
     }
 
     @Override

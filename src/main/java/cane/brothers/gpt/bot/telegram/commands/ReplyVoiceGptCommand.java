@@ -5,6 +5,7 @@ import cane.brothers.gpt.bot.ai.ChatClientService;
 import cane.brothers.gpt.bot.ai.ChatVoiceClientService;
 import cane.brothers.gpt.bot.telegram.settings.ChatSettingsQuery;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -37,8 +38,9 @@ class ReplyVoiceGptCommand extends ReplyGptCommand {
                                 TelegramClient telegramClient,
                                 ChatSettingsQuery botSettings,
                                 ChatVoiceClientService voiceClient,
-                                AppProperties properties) {
-        super(chatClient, telegramClient, botSettings);
+                                AppProperties properties,
+                                ConversionService convSvc) {
+        super(chatClient, telegramClient, botSettings, convSvc);
         this.voiceClient = voiceClient;
         this.properties = properties;
     }
