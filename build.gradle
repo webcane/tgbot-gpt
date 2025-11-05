@@ -60,7 +60,7 @@ dependencies {
 	implementation 'org.telegram:telegrambots-client:9.0.0'
 	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.0.0'
     // markdown to telegram
-    implementation "cane.brothers:markdown2tg:2.0.2"
+    implementation "cane.brothers:markdown2tg:2.1.4"
 //	implementation 'org.telegram:telegrambots-abilities:9.0.0'
 	// slf4j implementation
 	implementation 'ch.qos.logback:logback-classic:1.5.18'
