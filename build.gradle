@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.4'
+	id 'org.springframework.boot' version '3.5.7'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -39,7 +39,7 @@ repositories {
 
 dependencyManagement {
 	imports {
-		mavenBom "org.springframework.ai:spring-ai-bom:1.0.1"
+		mavenBom "org.springframework.ai:spring-ai-bom:1.0.3"
 		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.0.0'
 	}
 }
@@ -56,17 +56,17 @@ dependencies {
     // deepseek
     implementation 'org.springframework.ai:spring-ai-starter-model-deepseek'
 	// telegram bot libs
-	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.0.0'
-	implementation 'org.telegram:telegrambots-client:9.0.0'
-	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.0.0'
+	implementation 'org.telegram:telegrambots-springboot-longpolling-starter:9.2.0'
+	implementation 'org.telegram:telegrambots-client:9.2.0'
+	implementation 'org.telegram:telegrambots-client-jetty-adapter:9.2.0'
     // markdown to telegram
     implementation "cane.brothers:markdown2tg:2.1.4"
 //	implementation 'org.telegram:telegrambots-abilities:9.0.0'
 	// slf4j implementation
-	implementation 'ch.qos.logback:logback-classic:1.5.18'
+	implementation 'ch.qos.logback:logback-classic:1.5.20'
 	// Lombok
-	compileOnly 'org.projectlombok:lombok:1.18.38'
-	annotationProcessor 'org.projectlombok:lombok:1.18.38'
+	compileOnly 'org.projectlombok:lombok:1.18.42'
+	annotationProcessor 'org.projectlombok:lombok:1.18.42'
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// Lombok for testing
