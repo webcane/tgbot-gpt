@@ -11,10 +11,18 @@ services:
       - .env
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+      JAVA_OPTS: "-Xmx384m -Xms128m -XX:MaxRAMPercentage=80.0 -XX:ActiveProcessorCount=1 -XX:+UseContainerSupport"
     ports:
       - "$SERVER_PORT:$SERVER_PORT"
       - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
-    mem_limit: 512m
+    deploy:
+      resources:
+        limits:
+          memory: 384m
+          cpus: '0.5'
+        reservations:
+          memory: 128m
+          cpus: '0.25'
     restart: always
     networks:
       app-network: { }
