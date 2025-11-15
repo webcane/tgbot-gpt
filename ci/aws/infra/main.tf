@@ -188,16 +188,7 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   client_id_list = [
     "sts.amazonaws.com"
   ]
-  # List of thumbprints for root CAs used by GitHub Actions OIDC provider
-  # request it using openssl or find in AWS/GitHub documentation
-  # these values are stable but may change over time
-  # up-to-date list can be found here:
-  # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#configuring-aws-with-openid-connect
-  # or get it via 'openssl s_client -showcerts -verify 5 -connect token.actions.githubusercontent.com:443 < /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ print $0 }' | openssl x509 -fingerprint -noout'
-  thumbprint_list = [
-    "7560d6f40fa55195f740ee2b1b7c0b4836cbe103",
-    "a031c46782e0e6c694c7739af3c983a93f00ef16"
-  ]
+  thumbprint_list = var.thumbprint_list
 
   tags = {
     Terraform = "true"

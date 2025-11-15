@@ -79,3 +79,18 @@ variable "repository_image_scan_on_push" {
   type        = bool
   default     = true
 }
+
+variable "thumbprint_list" {
+  # List of thumbprints for root CAs used by GitHub Actions OIDC provider
+  # request it using openssl or find in AWS/GitHub documentation
+  # these values are stable but may change over time
+  # up-to-date list can be found here:
+  # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#configuring-aws-with-openid-connect
+  # or get it via 'openssl s_client -showcerts -verify 5 -connect token.actions.githubusercontent.com:443 < /dev/null | awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/{ print $0 }' | openssl x509 -fingerprint -noout'
+  description = "List of CA certificate thumbprints for IAM OIDC provider."
+  type        = list(string)
+  default = [
+    "7560d6f40fa55195f740ee2b1b7c0b4836cbe103",
+    "a031c46782e0e6c694c7739af3c983a93f00ef16"
+  ]
+}
