@@ -27,7 +27,7 @@ resource "aws_ssm_parameter" "docker_compose_yml" {
   name        = "/tgbot-gpt/docker_compose_yml"
   description = "Docker Compose file"
   type        = "SecureString"
-  value       = file("${path.module}/../../../docker-compose.yml")
+  value       = file("${path.module}/../../../compose.yaml")
 }
 
 resource "aws_ssm_parameter" "deploy_sh" {

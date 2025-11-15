@@ -43,7 +43,7 @@ the [Telegram Bot Java Library](https://github.com/rubenlagus/TelegramBots). The
 
   2. Simplified Deployment Process 
     - Deployment to the EC2 instance requires only two files:
-      - docker-compose.yml 
+      - compose.yaml 
       - deploy.sh 
     - The bot can be deployed effortlessly using Docker and Docker Compose, streamlining the setup and reducing manual intervention.
     - commit to `main` branch triggers github actions workflow to build, push docker image into AWS ECR repository and redeploy the bot on EC2 instance.
@@ -174,10 +174,10 @@ To run the bot locally:
 
 - build an image
     ```bash
-    docker build -t "${PROJECT,,}:latest" . 
+    docker build --build-arg GPR_KEY="${GPR_KEY}" -t "${PROJECT,,}:latest" .
     ```
 - run the bot using docker compose
-  make sure `.env` file is in the same directory as `docker-compose.yml`
+  make sure `.env` file is in the same directory as `compose.yaml`
     ```bash
     docker compose up --detach
     ```
@@ -209,6 +209,9 @@ To run `deploy` workflow, github needs to have access to AWS account:
 - define following environment variables in the `aws` environment
     - `AWS_ACCESS_KEY_ID` - aws access key id
     - `AWS_SECRET_ACCESS_KEY` - aws secret access key
+- define following secret in the `aws` environment
+    - `GPR_KEY` - github token to access github packages registry
+
 
 ## AWS infrastructure setup
 
@@ -226,7 +229,7 @@ Terraform will do following:
 
 - create ec2 and ecr using terraform modules
 - define free_tier alerts
-- use `t3.small` ec2 instance type. note that is not free tier eligible
+- use `t2.micro` ec2 instance type.
 - setup security groups to allow only ssh and http access
 - setup iam roles and policies:
   github actions will be allowed to:
@@ -306,8 +309,8 @@ Store.
 - The EC2 instance is configured with only a root volume. Each time Terraform provisions the instance,
   all data is lost and the environment is reinitialized using the `user_data` cloud-init script.
 - Current setup
-  uses [t3.small](https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#InstanceTypes:v=3;search=:t3.small)
-  ec2 instance type (2GiB Memory, 2 vCPU). This is not free tier eligible
+  uses [t2.micro](https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#InstanceTypes:search=:t2.micro;v=3)
+  ec2 instance type (1GiB Memory, 1 vCPU).
 - 
 
 # Message limits
@@ -331,7 +334,7 @@ models - choose preferred ai model
 - `/src` - java source code
 - `.env` - environment variables file
 - `aws.env` - environment variables file for AWS SSM Parameter Store
-- `docker-compose.yml` - docker compose file to run the bot locally
+- `compose.yaml` - docker compose file to run the bot locally
 - `Dockerfile` - dockerfile to build the bot image
 - `build.gradle` - gradle build file
 - `gradle.properties` - gradle properties file

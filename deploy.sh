@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-DOCKER_COMPOSE_FILE="docker-compose.yml"
+DOCKER_COMPOSE_FILE="compose.yaml"
 echo "Create $DOCKER_COMPOSE_FILE file" >> "$LOG_FILE"
 > $DOCKER_COMPOSE_FILE
 sudo chown ubuntu:ubuntu $DOCKER_COMPOSE_FILE

@@ -1,0 +1,47 @@
+services:
+  app:
+    image: ${REGISTRY_PREFIX}${PROJECT}:latest
+    container_name: $PROJECT
+    working_dir: /app
+    volumes:
+      - ~/voice:/app/src/main/resources/voice
+      - ~/.config/google/google-credentials.json:/app/google-credentials.json
+      - tmp_data:/tmp
+    env_file:
+      - .env
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+      JAVA_OPTS: >-
+        -Xmx384m
+        -Xms128m
+        -XX:MaxMetaspaceSize=90m
+        -XX:MetaspaceSize=64m
+        -XX:+UseSerialGC
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=65.0
+        -XX:ActiveProcessorCount=1
+        -Djava.security.egd=file:/dev/./urandom
+    ports:
+      - "$SERVER_PORT:$SERVER_PORT"
+      - "$TGBOT_PROXY_PORT:$TGBOT_PROXY_PORT"
+    # Limit resources usage for container deployed on t2.micro (vCPU: 1, RAM: 1GB)
+    mem_limit: 640m
+    mem_reservation: 256m
+    cpus: 0.8
+    deploy:
+      resources:
+        limits:
+          memory: 640m
+          cpus: '0.8'
+        reservations:
+          memory: 256m
+          cpus: '0.25'
+    restart: unless-stopped
+    networks:
+      app-network: { }
+
+volumes:
+  tmp_data:
+
+networks:
+  app-network:

@@ -5,6 +5,23 @@ touch "$LOG_FILE"
 sudo chown ubuntu:ubuntu "$LOG_FILE"
 echo "$(date '+%Y-%m-%d %H:%M:%S') Starting user-data script execution" >> "$LOG_FILE"
 
+echo "Create swap file" >> "$LOG_FILE"
+fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+
+# Make the swap file permanent
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+# How often the system uses the swap file (0-100)
+# Lower values mean the system will try to avoid using swap space
+# Higher values mean the system will use swap space more frequently
+sysctl vm.swappiness=10
+echo 'vm.swappiness=10' >> /etc/sysctl.conf
+echo "Swap creation completed at $(date)" >> "$LOG_FILE"
+
+
 APP_DIR="/home/ubuntu/${app_name}"
 echo "Create working directory $APP_DIR..." >> "$LOG_FILE"
 mkdir "$APP_DIR"
@@ -41,6 +58,18 @@ echo "Create .docker directory for ubuntu user if missing" >> "$LOG_FILE"
 DOCKER_CONFIG_DIR="/home/ubuntu/.docker"
 mkdir "$DOCKER_CONFIG_DIR"
 sudo chown ubuntu:ubuntu "$DOCKER_CONFIG_DIR"
+
+echo "Configuring Docker daemon..."  >> "$LOG_FILE"
+cat > "$DOCKER_CONFIG_DIR/daemon.json" <<'DOCKEREOF'
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2"
+}
+DOCKEREOF
 
 echo "Install gcloud dependencies" >> "$LOG_FILE"
 sudo apt install apt-transport-https ca-certificates gnupg curl -y
