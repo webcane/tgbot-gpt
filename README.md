@@ -193,6 +193,10 @@ To run the bot locally:
     ```bash
     docker system prune -a
     ```
+- to observe docker resource usage
+    ```bash
+    docker stats
+    ```
 
 # EC2 setup
 there are two steps to deploy the bot on AWS EC2 instance:
