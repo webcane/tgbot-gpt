@@ -73,8 +73,8 @@ module "tgbot-ec2" {
   source                      = "terraform-aws-modules/ec2-instance/aws"
   version                     = ">= 5.8.0"
   name                        = "${var.app_name}-ec2"
-  ami                         = "ami-02003f9f0fde924ea" # Ubuntu 24.04 64bit x86
-  instance_type               = "t3.small"
+  ami                         = var.ami
+  instance_type               = var.instance_type
   key_name                    = var.key_name
   vpc_security_group_ids      = [module.tgbot-sg.security_group_id]
   associate_public_ip_address = true
@@ -102,8 +102,8 @@ module "tgbot-sg" {
   name                = "${var.app_name}-sg"
   description         = "Security group for telegram bot deployed on EC2. Allow public access"
   vpc_id              = data.aws_vpc.default.id
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["ssh-tcp", "http-80-tcp"]
+  ingress_cidr_blocks = var.ingress_cidr_blocks
+  ingress_rules       = var.ingress_rules
   ingress_with_cidr_blocks = [
     {
       from_port   = 8080
@@ -153,14 +153,12 @@ resource "aws_budgets_budget" "free_tier" {
 
 # ECR
 module "ecr_repository" {
-  source            = "terraform-aws-modules/ecr/aws"
-  version           = "~> 2.4.0"
-  repository_name   = local.ecr_repository_name
-  create_repository = true
-  # Configuration for image scanning and tag immutability (recommended)
-  repository_image_scan_on_push = true
-  # Prevents tags from being overwritten (e.g., 'latest')
-  repository_image_tag_mutability = "MUTABLE"
+  source                          = "terraform-aws-modules/ecr/aws"
+  version                         = "~> 2.4.0"
+  repository_name                 = local.ecr_repository_name
+  create_repository               = true
+  repository_image_scan_on_push   = var.repository_image_scan_on_push
+  repository_image_tag_mutability = var.repository_image_tag_mutability
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
@@ -398,7 +396,7 @@ resource "aws_iam_role_policy_attachment" "ec2_kms_policy_attachment" {
 
 resource "aws_cloudwatch_log_group" "ssm_deploy_logs" {
   name              = "/aws/ssm/${var.app_name}-deploy-logs"
-  retention_in_days = 30
+  retention_in_days = var.retention_in_days
   tags = {
     Terraform = "true"
     Project   = var.app_name

@@ -37,3 +37,45 @@ variable "google_cloud_project_id" {
   description = "Google Cloud project ID"
   type        = string
 }
+
+variable "ami" {
+  description = "AMI ID for EC2 instance. Default: Ubuntu 24.04 64bit x86."
+  type        = string
+  default     = "ami-02003f9f0fde924ea"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type."
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "ingress_cidr_blocks" {
+  description = "Ingress CIDR blocks for security group."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "ingress_rules" {
+  description = "Ingress rules for security group."
+  type        = list(string)
+  default     = ["ssh-tcp", "http-80-tcp"]
+}
+
+variable "retention_in_days" {
+  description = "CloudWatch log group retention in days."
+  type        = number
+  default     = 30
+}
+
+variable "repository_image_tag_mutability" {
+  description = "ECR repository image tag mutability. Prevents tags from being overwritten (e.g., 'latest')"
+  type        = string
+  default     = "MUTABLE"
+}
+
+variable "repository_image_scan_on_push" {
+  description = "Enable ECR image scan on push. Configuration for image scanning and tag immutability (recommended)"
+  type        = bool
+  default     = true
+}
