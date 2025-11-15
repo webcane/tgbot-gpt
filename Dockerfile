@@ -63,11 +63,13 @@ COPY --from=build --chown=${USER_NAME}:${GROUP_NAME} /app/extracted/application/
 EXPOSE ${PORT} 42567
 
 # Команда для запуска приложения, использующая встроенный загрузчик Spring Boot
-ENTRYPOINT ["sh", "-c", \
-  "exec java \"$JAVA_OPTS\" \
-  -Dhttp.proxyHost=\"$TGBOT_PROXY_HOSTNAME\" \
-  -Dhttp.proxyPort=\"$TGBOT_PROXY_PORT\" \
-  -Dhttps.proxyUser=\"$TGBOT_PROXY_USERNAME\" \
-  -Dhttps.proxyPassword=\"$TGBOT_PROXY_PASSWORD\" \
-  org.springframework.boot.loader.launch.JarLauncher"
-]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS \
+             -Dhttp.proxyHost=\"$TGBOT_PROXY_HOSTNAME\" \
+             -Dhttps.proxyHost=\"$TGBOT_PROXY_HOSTNAME\" \
+             -Dhttp.proxyPort=\"$TGBOT_PROXY_PORT\" \
+             -Dhttps.proxyPort=\"$TGBOT_PROXY_PORT\" \
+             -Dhttp.proxyUser=\"$TGBOT_PROXY_USERNAME\" \
+             -Dhttps.proxyUser=\"$TGBOT_PROXY_USERNAME\" \
+             -Dhttp.proxyPassword=\"$TGBOT_PROXY_PASSWORD\" \
+             -Dhttps.proxyPassword=\"$TGBOT_PROXY_PASSWORD\" \
+             org.springframework.boot.loader.launch.JarLauncher"]
