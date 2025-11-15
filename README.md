@@ -309,9 +309,22 @@ Store.
 - The EC2 instance is configured with only a root volume. Each time Terraform provisions the instance,
   all data is lost and the environment is reinitialized using the `user_data` cloud-init script.
 - Current setup
-  uses [t2.micro](https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#InstanceTypes:search=:t2.micro;v=3)
-  ec2 instance type (1GiB Memory, 1 vCPU).
-- 
+  - uses [t2.micro](https://eu-central-1.console.aws.amazon.com/ec2/home?region=eu-central-1#InstanceTypes:search=:t2.micro;v=3)
+  - ec2 instance type (1GiB Memory, 1 vCPU).
+  - Docker container limits:
+    - **memory**: 640MiB
+    - **cpu**: 0.8 vCPU
+  - Swapfile Usage
+    
+    During EC2 initialization, a 2GB swapfile is created to extend available memory.
+    This helps prevent out-of-memory errors on small instance types (e.g., t2.micro).
+    Swap usage is tuned for minimal impact on performance (vm.swappiness=10).
+    Monitor swap and memory usage to ensure stable operation under load
+- Actual resource usage depends on the number of users.
+  
+  For light usage:
+  - **memory** usage is around 40% - 250MiB
+  - **cpu** usage is around 10 - 50%
 
 # Message limits
 
