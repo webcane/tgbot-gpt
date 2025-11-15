@@ -6,6 +6,9 @@ ARG JAR_FILE_NAME=${JAR_FILE_NAME:-app.jar}
 
 ARG PORT=${SERVER_PORT:-8080}
 
+ARG GPR_USER=${GPR_USER:-webcane}
+ARG GPR_KEY
+
 # Define build arguments for user and group
 ARG USER_NAME=${DOCKER_USER_NAME:-spring}
 ARG USER_ID=1000
@@ -33,7 +36,7 @@ COPY gradle.properties .
 COPY src src/
 
 # Предварительная загрузка зависимостей Gradle для кэширования
-RUN ./gradlew dependencies --no-daemon
+RUN ./gradlew dependencies -Pgpr.user=${GPR_USER} -Pgpr.key=${GPR_KEY} --no-daemon
 
 # Сборка приложения в слоеный JAR
 RUN ./gradlew bootJar --no-daemon

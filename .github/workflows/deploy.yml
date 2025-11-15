@@ -12,6 +12,8 @@ env:
   PROJECT: ${{ github.event.repository.name }}
   AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  GPR_USER: ${{ github.actor }}
+  GPR_KEY: ${{ secrets.GPR_KEY }}
 jobs:
   build-and-push-ecr:
     runs-on: ubuntu-22.04
@@ -33,7 +35,11 @@ jobs:
         run: |
           SHA_IMAGE_URI="${{ env.PROJECT }}:${{ env.IMAGE_TAG }}"
           LATEST_IMAGE_URI="${{ env.PROJECT }}:latest"
-          docker build -t $SHA_IMAGE_URI -t $LATEST_IMAGE_URI .
+          docker build \
+          --build-arg GPR_USER=${{ env.GPR_USER }} \
+          --build-arg GPR_KEY=${{ env.GPR_KEY }} \
+          -t $SHA_IMAGE_URI \
+          -t $LATEST_IMAGE_URI .
 
       - name: Configure AWS credentials (using OIDC)
         uses: aws-actions/configure-aws-credentials@v4
